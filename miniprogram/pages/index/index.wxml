@@ -74,7 +74,7 @@
             <text class="text-lg font-bold">{{item.name}}</text>
             <text class="text-primary font-bold">¥{{item.price}}</text>
           </view>
-          <text class="product-desc mb-4">{{item.description}}</text>
+          <text class="product-desc mb-4">{{item.subtitle || item.description || ''}}</text>
           <button class="btn-primary w-full">查看详情</button>
         </view>
       </view>

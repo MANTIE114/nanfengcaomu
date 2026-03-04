@@ -1,0 +1,81 @@
+<!--pages/after_sales/progress/progress.wxml-->
+<view class="container">
+  <!-- Status Header -->
+  <view class="status-header">
+    <view class="status-title">退款处理中</view>
+    <view class="status-sub">您的申请已提交，请耐心等待南风草木审核</view>
+  </view>
+
+  <!-- Product Card -->
+  <view class="product-card">
+    <image class="product-image" src="{{orderItem.cover_image}}" mode="aspectFill"></image>
+    <view class="product-info">
+      <view class="product-name">{{orderItem.name}}</view>
+      <view class="product-spec">规格：{{orderItem.spec || '默认'}}</view>
+    </view>
+  </view>
+
+  <!-- Progress Tracking -->
+  <view class="section-card">
+    <view class="section-title">处理进度追踪</view>
+    <view class="timeline">
+      <view class="timeline-item status-disabled">
+        <view class="timeline-node"></view>
+        <view class="timeline-content">
+          <view class="node-title">退款成功</view>
+          <view class="node-time">预计24小时内按原路径到账</view>
+        </view>
+      </view>
+      <view class="timeline-item status-disabled">
+        <view class="timeline-node"></view>
+        <view class="timeline-content">
+          <view class="node-title">商家退款</view>
+          <view class="node-time">商家确认收货并同意退款</view>
+        </view>
+      </view>
+      <view class="timeline-item status-active">
+        <view class="timeline-node"></view>
+        <view class="timeline-content">
+          <view class="node-title">平台审核中</view>
+          <view class="node-time">专属客服正在核实您的原因，预计4小时内反馈结果。</view>
+        </view>
+      </view>
+      <view class="timeline-item status-done">
+        <view class="timeline-node"></view>
+        <view class="timeline-content">
+          <view class="node-title">提交申请</view>
+          <view class="node-time">您的申请已成功提交至系统</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Info List -->
+  <view class="section-card">
+    <view class="section-title">详情信息</view>
+    <view class="info-list">
+      <view class="info-row">
+        <text class="info-label">退款原因</text>
+        <text class="info-value">{{refundInfo.reason || '拍错了/订单维护'}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">退款金额</text>
+        <text class="info-value">¥ {{refundInfo.refund_amount || orderAmount}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">申请时间</text>
+        <text class="info-value">{{refundInfo.create_time || '2023-11-14 10:30'}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">售后编号</text>
+        <text class="info-value">{{refundInfo.refund_no || 'AS202311140012'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Bottom Action -->
+  <view class="footer-actions">
+    <button class="btn-outline" bindtap="contactService">联络客服</button>
+    <button class="btn-primary" bindtap="cancelApply">撤销申请</button>
+  </view>
+</view>

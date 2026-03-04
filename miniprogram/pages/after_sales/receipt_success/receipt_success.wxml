@@ -1,0 +1,36 @@
+<!--pages/after_sales/receipt_success/receipt_success.wxml-->
+<view class="container">
+  <view class="success-header">
+    <view class="icon-box">
+      <view class="check-icon">✓</view>
+    </view>
+    <view class="title">确认收货成功</view>
+    <view class="subtitle">感谢您的信任，愿香气常伴左右</view>
+  </view>
+
+  <view class="action-box">
+    <button class="btn btn-primary" bindtap="goHome">返回首页</button>
+    <button class="btn btn-outline" bindtap="viewOrder">查看订单</button>
+  </view>
+
+  <view class="recommend-section">
+    <view class="recommend-title">
+      <text class="line"></text>
+      <text class="text">雅物推荐</text>
+      <text class="line"></text>
+    </view>
+    <view class="product-grid">
+      <view class="product-item" wx:for="{{recommendations}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+        <image class="product-img" src="{{item.cover_image}}" mode="aspectFill"></image>
+        <view class="product-info">
+          <view class="product-name">{{item.name}}</view>
+          <view class="product-price">¥{{item.price}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer-zen">
+    <text class="zen-text">一炷清香，静候归人</text>
+  </view>
+</view>

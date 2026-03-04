@@ -25,6 +25,37 @@ Page({
         });
         this.setData({ totalPrice: total, totalCount: count });
     },
+    removeCartItem(e) {
+        const id = e.currentTarget.dataset.id;
+        wx.showModal({
+            title: '确认移除',
+            content: '确定要从香蓝中移除该香品吗？',
+            success: (res) => {
+                if (res.confirm) {
+                    wx.showLoading({ title: '处理中...' });
+                    api.deleteCartItem(id).then(() => {
+                        wx.hideLoading();
+                        this.fetchCart();
+                    }).catch(console.error);
+                }
+            }
+        });
+    },
+    updateQty(e) {
+        const { id, action } = e.currentTarget.dataset;
+        const item = this.data.cartItems.find(i => i.id === id);
+        if (!item) return;
+        let newQty = item.quantity + parseInt(action, 10);
+        if (newQty <= 0) {
+            this.removeCartItem({ currentTarget: { dataset: { id } } });
+        } else {
+            wx.showLoading({ title: '处理中...' });
+            api.updateCartItem(id, newQty).then(() => {
+                wx.hideLoading();
+                this.fetchCart();
+            }).catch(console.error);
+        }
+    },
     checkout() {
         // simple create order logic
         if (this.data.cartItems.length === 0) {
@@ -38,11 +69,17 @@ Page({
         }));
 
         api.createOrder({ addressId: 1, items }).then(data => {
-            wx.showToast({ title: '订单已生成', icon: 'success' });
-            // clear cart locally (would need an API endpoint to clear cart actually, but for brevity we'll redirect)
+            wx.showToast({ title: '订单生成成功', icon: 'success' });
+
+            // Fire and forget batch delete cart items on backend
+            this.data.cartItems.forEach(item => api.deleteCartItem(item.id));
+            // Clear cart immediately on frontend
+            this.setData({ cartItems: [], totalCount: 0, totalPrice: 0 });
+
+            // Navigate to the new order detail page
             setTimeout(() => {
-                wx.switchTab({ url: '/pages/profile/profile' });
-            }, 1500);
+                wx.navigateTo({ url: '/pages/order_detail/order_detail?id=' + data.orderId });
+            }, 1000);
         }).catch(console.error);
     }
 })

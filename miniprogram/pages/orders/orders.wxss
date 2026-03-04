@@ -1,0 +1,140 @@
+/* pages/orders/orders.wxss */
+.page { background: #f8f6f6; min-height: 100vh; }
+
+/* ══ Tabs ══ */
+.tabs {
+  display: flex;
+  background: #fff;
+  border-bottom: 1rpx solid #f1f5f9;
+  position: sticky; top: 0; z-index: 10;
+  overflow-x: auto;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab-item {
+  flex-shrink: 0;
+  padding: 28rpx 28rpx;
+  font-size: 26rpx;
+  color: #94a3b8;
+  white-space: nowrap;
+  position: relative;
+}
+.tab-active {
+  color: #b42222;
+  font-weight: bold;
+}
+.tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 20rpx; right: 20rpx;
+  height: 4rpx;
+  background: #b42222;
+  border-radius: 2rpx;
+}
+
+/* ══ Empty ══ */
+.empty { text-align: center; padding: 160rpx 40rpx 0; }
+.empty-icon { width: 100rpx; height: 100rpx; opacity: 0.45; margin-bottom: 24rpx; }
+.empty-text { font-size: 32rpx; font-weight: bold; color: #334155; }
+.empty-sub { font-size: 24rpx; color: #94a3b8; margin-top: 12rpx; margin-bottom: 40rpx; }
+.btn-go {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 72rpx;
+  padding: 0 48rpx;
+  background: #b42222;
+  color: #fff;
+  font-size: 28rpx;
+  border-radius: 36rpx;
+  margin: 0;
+}
+.btn-go::after { display: none; }
+
+/* ══ Order List ══ */
+.list { padding: 20rpx; }
+.order-card {
+  background: #fff;
+  border-radius: 20rpx;
+  margin-bottom: 20rpx;
+  overflow: hidden;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+}
+
+/* 卡片顶栏 */
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx 28rpx 16rpx;
+  border-bottom: 1rpx solid #f8f6f6;
+}
+.head-left { display: flex; align-items: baseline; gap: 12rpx; }
+.shop-name { font-size: 28rpx; font-weight: bold; color: #1e293b; }
+.order-no { font-size: 20rpx; color: #94a3b8; font-family: monospace; }
+
+.order-status { font-size: 24rpx; font-weight: 500; }
+
+.status-0 { color: #f59e0b; }  /* 待付款 - 琥珀 */
+.status-1 { color: #b42222; }  /* 待发货 - 深红 */
+.status-2 { color: #2563eb; }  /* 待收货 - 蓝 */
+.status-3 { color: #64748b; }  /* 已完成 */
+
+/* 商品行 */
+.items-row {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 28rpx;
+  gap: 12rpx;
+}
+.order-item { flex-shrink: 0; }
+.item-thumb {
+  width: 120rpx; height: 120rpx;
+  border-radius: 12rpx;
+  background: #f1f5f9;
+}
+.item-more {
+  width: 60rpx; height: 60rpx;
+  border-radius: 8rpx;
+  background: #f8f6f6;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20rpx; color: #94a3b8;
+  flex-shrink: 0;
+}
+.item-summary {
+  flex: 1;
+  margin-left: 8rpx;
+}
+.item-name-brief { font-size: 26rpx; color: #334155; font-weight: 500; line-height: 1.4; margin-bottom: 4rpx; }
+.item-spec-brief { font-size: 22rpx; color: #94a3b8; margin-bottom: 6rpx; }
+.item-count-brief { font-size: 22rpx; color: #94a3b8; }
+.order-amount { text-align: right; }
+.amount { font-size: 32rpx; font-weight: bold; color: #b42222; }
+
+/* 卡片底部 */
+.card-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1rpx solid #f8f6f6;
+  padding: 16rpx 28rpx;
+}
+.order-time { font-size: 22rpx; color: #94a3b8; }
+.card-actions { display: flex; gap: 16rpx; }
+.action-btn {
+  height: 52rpx !important;
+  min-height: 52rpx !important;
+  line-height: 52rpx !important;
+  padding: 0 24rpx !important;
+  font-size: 22rpx !important;
+  border-radius: 26rpx;
+  margin: 0;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  width: auto !important;
+}
+.action-btn::after { display: none; }
+.btn-outline { border: 1rpx solid #cbd5e1; color: #64748b; background: transparent; }
+.btn-primary { background: #b42222; color: #fff; border: none; }
+
+/* List end */
+.list-end { text-align: center; font-size: 22rpx; color: #cbd5e1; padding: 32rpx 0 48rpx; letter-spacing: 0.1em; }

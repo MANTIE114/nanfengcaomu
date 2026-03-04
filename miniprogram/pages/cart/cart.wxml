@@ -12,7 +12,7 @@
         <view>
           <view class="flex justify-between items-start">
             <view class="text-base font-bold text-slate-900">{{item.name}}</view>
-            <view class="text-slate-400">✕</view>
+            <view class="text-slate-400" bindtap="removeCartItem" data-id="{{item.id}}">✕</view>
           </view>
           <view class="mt-2 inline-block">
             <text class="tag bg-primary-5 text-primary text-[20rpx] px-2 py-1 rounded">精选商品</text>
@@ -21,9 +21,9 @@
         <view class="flex items-center justify-between mt-4">
           <view class="text-primary text-lg font-bold">¥{{item.price}}</view>
           <view class="flex items-center gap-3">
-            <view class="btn-qty border border-primary-20 text-slate-900">-</view>
+            <view class="btn-qty border border-primary-20 text-slate-900" bindtap="updateQty" data-id="{{item.id}}" data-action="-1">-</view>
             <view class="text-sm">{{item.quantity}}</view>
-            <view class="btn-qty border border-primary-20 text-slate-900">+</view>
+            <view class="btn-qty border border-primary-20 text-slate-900" bindtap="updateQty" data-id="{{item.id}}" data-action="1">+</view>
           </view>
         </view>
       </view>

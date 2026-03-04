@@ -1,0 +1,40 @@
+<!--pages/after_sales/apply/apply.wxml-->
+<view class="container">
+  <view class="product-card">
+    <image class="product-image" src="{{orderItem.cover_image}}" mode="aspectFill"></image>
+    <view class="product-info">
+      <view class="product-name">{{orderItem.name}}</view>
+      <view class="product-spec">规格：{{orderItem.spec || '默认'}}</view>
+      <view class="product-price">¥ {{orderItem.price}}</view>
+    </view>
+  </view>
+
+  <view class="section-title">选择服务类型</view>
+  <view class="service-list">
+    <view class="service-item" bindtap="selectService" data-type="1">
+      <view class="service-content">
+        <view class="service-name">仅退款</view>
+        <view class="service-desc">未收到货，或与卖家协商同意</view>
+      </view>
+      <view class="arrow">›</view>
+    </view>
+    <view class="service-item" bindtap="selectService" data-type="2">
+      <view class="service-content">
+        <view class="service-name">退货退款</view>
+        <view class="service-desc">已收到货，需退还所收货物</view>
+      </view>
+      <view class="arrow">›</view>
+    </view>
+    <view class="service-item" bindtap="selectService" data-type="3">
+      <view class="service-content">
+        <view class="service-name">换货</view>
+        <view class="service-desc">商品质量问题，需更换新商品</view>
+      </view>
+      <view class="arrow">›</view>
+    </view>
+  </view>
+
+  <view class="footer-tip">
+    一炷清香，静候归人 · NAN FENG CAO MU
+  </view>
+</view>

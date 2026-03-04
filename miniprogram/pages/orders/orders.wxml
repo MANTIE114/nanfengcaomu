@@ -1,0 +1,91 @@
+<!-- pages/orders/orders.wxml -->
+<view class="page">
+
+  <!-- 顶部 Tab 筛选 -->
+  <view class="tabs">
+    <view
+      class="tab-item {{activeTab === item.status ? 'tab-active' : ''}}"
+      wx:for="{{tabs}}" wx:key="status"
+      bindtap="switchTab" data-status="{{item.status}}">
+      {{item.label}}
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{filteredOrders.length === 0}}">
+    <image src="https://img.icons8.com/ios/80/b42222/receive-cash.png" class="empty-icon"></image>
+    <view class="empty-text">暂无相关订单</view>
+    <view class="empty-sub">去首页看看有没有心动的香品</view>
+    <button class="btn-go" bindtap="goHome">前往首页</button>
+  </view>
+
+  <!-- 订单列表 -->
+  <scroll-view scroll-y class="list" wx:if="{{filteredOrders.length > 0}}">
+    <view class="order-card" wx:for="{{filteredOrders}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
+
+      <!-- 卡片顶栏：店铺名 + 状态 -->
+      <view class="card-head">
+        <view class="head-left">
+          <view class="shop-name">南风草木</view>
+          <view class="order-no">#{{item.order_no}}</view>
+        </view>
+        <view class="order-status status-{{item.status}}">
+          {{item.status === 0 ? '待付款' : item.status === 1 ? '待发货' : item.status === 2 ? '待收货' : item.status === 3 ? '已完成' : item.status === 4 ? '售后中' : item.status === 5 ? '已退款' : '已取消'}}
+        </view>
+      </view>
+
+      <!-- 商品行（最多显示2件） -->
+      <view class="items-row">
+        <view class="order-item" wx:for="{{item.previewItems}}" wx:key="index" wx:for-item="pItem">
+          <image src="{{pItem.cover_image || '/assets/item1.jpg'}}" mode="aspectFill" class="item-thumb"></image>
+        </view>
+        <view class="item-more" wx:if="{{item.itemCount > 2}}">+{{item.itemCount - 2}}</view>
+        <view class="item-summary">
+          <view class="item-name-brief">{{item.firstName}}</view>
+          <view class="item-spec-brief">{{item.firstSpec}}</view>
+          <view class="item-count-brief">共 {{item.itemCount}} 件</view>
+        </view>
+        <view class="order-amount">
+          <view class="amount">¥{{item.total_amount}}</view>
+        </view>
+      </view>
+
+
+      <!-- 卡片底部：时间 + 操作按钮 -->
+      <view class="card-foot">
+        <view class="order-time">{{item.create_time}}</view>
+        <view class="card-actions">
+          <!-- 待付款 -->
+          <block wx:if="{{item.status === 0}}">
+            <button class="action-btn btn-outline" catchtap="cancelOrder" data-id="{{item.id}}">取消</button>
+            <button class="action-btn btn-primary" catchtap="payOrder" data-id="{{item.id}}">立即支付</button>
+          </block>
+
+          <!-- 待收货 -->
+          <block wx:if="{{item.status === 2}}">
+            <button class="action-btn btn-primary" catchtap="confirmReceive" data-id="{{item.id}}">确认收货</button>
+          </block>
+          <!-- 已完成 -->
+          <block wx:if="{{item.status === 3}}">
+            <button class="action-btn btn-outline" catchtap="rebuy" data-id="{{item.id}}">再次请香</button>
+          </block>
+          <!-- 售后中 / 已退款 -->
+          <block wx:if="{{item.status === 4 || item.status === 5}}">
+            <button class="action-btn btn-primary" catchtap="viewRefund" data-id="{{item.id}}" data-status="{{item.status}}">
+              {{item.status === 4 ? '查看售后' : '退款详情'}}
+            </button>
+          </block>
+          <!-- 已取消 -->
+          <block wx:if="{{item.status === -1}}">
+            <button class="action-btn btn-outline" catchtap="deleteOrder" data-id="{{item.id}}">删除订单</button>
+          </block>
+        </view>
+      </view>
+
+
+    </view>
+
+    <view class="list-end">End of List · 别有洞天</view>
+  </scroll-view>
+
+</view>

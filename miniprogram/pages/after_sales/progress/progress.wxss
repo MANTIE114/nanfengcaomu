@@ -1,0 +1,180 @@
+/* pages/after_sales/progress/progress.wxss */
+.container {
+  padding: 0;
+  background-color: #f8f6f6;
+  min-height: 100vh;
+  padding-bottom: 160rpx;
+}
+
+.status-header {
+  background: linear-gradient(135deg, #b42222 0%, #d62f2f 100%);
+  padding: 60rpx 40rpx 80rpx;
+  color: #fff;
+}
+
+.status-title {
+  font-size: 40rpx;
+  font-weight: bold;
+}
+
+.status-sub {
+  font-size: 26rpx;
+  opacity: 0.9;
+  margin-top: 16rpx;
+}
+
+.product-card {
+  margin: -30rpx 30rpx 30rpx;
+  display: flex;
+  padding: 30rpx;
+  background-color: #fff;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.04);
+}
+
+.product-image {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  background-color: #f1f5f9;
+}
+
+.product-info {
+  margin-left: 24rpx;
+  flex: 1;
+}
+
+.product-name {
+  font-size: 28rpx;
+  color: #1e293b;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.product-spec {
+  font-size: 24rpx;
+  color: #64748b;
+  margin-top: 8rpx;
+}
+
+.section-card {
+  margin: 0 30rpx 30rpx;
+  background-color: #fff;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.02);
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #1e293b;
+  margin-bottom: 30rpx;
+  padding-left: 16rpx;
+  border-left: 6rpx solid #b42222;
+}
+
+/* Timeline */
+.timeline {
+  padding-left: 20rpx;
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 50rpx;
+  padding-left: 40rpx;
+  border-left: 2rpx solid #f1f5f9;
+}
+
+.timeline-item:last-child {
+  border-left: none;
+  padding-bottom: 0;
+}
+
+.timeline-node {
+  position: absolute;
+  left: -11rpx;
+  top: 10rpx;
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background-color: #cbd5e1;
+  z-index: 1;
+}
+
+.status-active .timeline-node {
+  background-color: #b42222;
+  box-shadow: 0 0 0 6rpx rgba(180,34,34,0.15);
+}
+
+.status-done .timeline-node {
+  background-color: #b42222;
+}
+
+.node-title {
+  font-size: 28rpx;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.status-active .node-title, .status-done .node-title {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.node-time {
+  font-size: 24rpx;
+  color: #94a3b8;
+  margin-top: 8rpx;
+  line-height: 1.5;
+}
+
+/* Info List */
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 16rpx 0;
+  font-size: 26rpx;
+}
+
+.info-label {
+  color: #64748b;
+}
+
+.info-value {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+/* Footer Group */
+.footer-actions {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  padding: 20rpx 32rpx calc(20rpx + env(safe-area-inset-bottom));
+  background-color: #fff;
+  display: flex;
+  gap: 20rpx;
+  box-shadow: 0 -4rpx 20rpx rgba(0,0,0,0.04);
+}
+
+.btn-outline, .btn-primary {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 40rpx;
+  font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+
+.btn-outline {
+  border: 1rpx solid #cbd5e1;
+  color: #64748b;
+  background: transparent;
+}
+
+.btn-primary {
+  background: #b42222;
+  color: #fff;
+}

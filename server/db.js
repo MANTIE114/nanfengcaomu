@@ -29,6 +29,7 @@ db.serialize(() => {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     category_id INTEGER NOT NULL,
     name TEXT NOT NULL,
+    subtitle TEXT,
     description TEXT,
     price REAL NOT NULL,
     stock INTEGER DEFAULT 0,
@@ -51,7 +52,8 @@ db.serialize(() => {
     logistics_company TEXT,
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     pay_time DATETIME,
-    ship_time DATETIME
+    ship_time DATETIME,
+    is_user_deleted INTEGER DEFAULT 0
   )`);
 
   db.run(`CREATE TABLE IF NOT EXISTS order_items (
@@ -74,6 +76,19 @@ db.serialize(() => {
     district TEXT,
     detail TEXT NOT NULL,
     is_default INTEGER DEFAULT 0
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS refunds (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    reason TEXT,
+    type INTEGER DEFAULT 1, -- 1: Items not received, 2: Refund with return, 3: Exchange
+    refund_amount REAL NOT NULL,
+    status INTEGER DEFAULT 0, -- 0: Applied, 1: Approved, 2: Completed, 3: Rejected
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    process_time DATETIME,
+    refund_no TEXT UNIQUE
   )`);
 
   db.run(`CREATE TABLE IF NOT EXISTS cart (
@@ -99,9 +114,9 @@ db.serialize(() => {
     if (!err && row.count === 0) {
       const stmt = db.prepare("INSERT INTO products (category_id, name, description, price, stock, cover_image) VALUES (?, ?, ?, ?, ?, ?)");
       [
-        [1, '老山檀香 · 禅意线香', '静心采撷，古法手作线香', 299.00, 128, '/assets/item1.jpg'],
-        [1, '降真香手串 · 圆满款', '老山檀香提神醒脑', 1280.00, 3, '/assets/item2.jpg'],
-        [2, '青瓷盖碗 · 素雅系', '明前龙井', 168.00, 0, '/assets/item3.jpg'],
+        [1, '老山檀香 · 禅意线香', '静心采撷，古法手作线香', 299.00, 128, '/assets/849442ead752fd9608d4a98b2ca89f60.jpg'],
+        [1, '降真香手串 · 圆满款', '老山檀香提神醒脑', 1280.00, 3, '/assets/9bac135c43861c23cefe0ded4f36b780.jpg'],
+        [2, '青瓷盖碗 · 素雅系', '明前龙井', 168.00, 0, '/assets/9d7fe5c92abb96f4475e6cc702071f56.jpg'],
       ].forEach(p => stmt.run(p[0], p[1], p[2], p[3], p[4], p[5]));
       stmt.finalize();
       console.log('Products initialized.');

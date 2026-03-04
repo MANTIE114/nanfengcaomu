@@ -1,0 +1,104 @@
+<!--pages/after_sales/details/details.wxml-->
+<view class="container">
+  <view class="success-header status-{{refundInfo.status}}">
+    <view class="icon-box">
+      <text wx:if="{{refundInfo.status === 2}}">✓</text>
+      <text wx:elif="{{refundInfo.status === 3}}">✕</text>
+      <text wx:elif="{{refundInfo.status === 1}}">✓</text>
+      <text wx:else>⏰</text>
+    </view>
+    <view class="title">
+      {{refundInfo.status === 2 ? '退款成功' : (refundInfo.status === 3 ? '售后申请已拒绝' : (refundInfo.status === 1 ? '商家已受理' : '申请处理中'))}}
+    </view>
+    <view class="amount" wx:if="{{refundInfo.status !== 3}}">¥ {{refundAmount}}</view>
+    <view class="desc">
+      {{refundInfo.status === 2 ? '退款已按原支付渠道退回，预计1-3个工作日到账' : 
+        (refundInfo.status === 3 ? '如有疑问可点击下方按钮咨询客服' : 
+        (refundInfo.status === 1 ? '商家已同意退款，正在为您结算中' : '我们将尽快为您审核这份售后申请'))}}
+    </view>
+  </view>
+
+  <view class="section-card">
+    <view class="section-title">退款进度</view>
+    <view class="timeline">
+      <!-- 2: Completed -->
+      <block wx:if="{{refundInfo.status === 2}}">
+        <view class="timeline-item">
+          <image class="node-icon" src="https://img.icons8.com/ios/30/16a34a/checked--v1.png"></image>
+          <view class="node-title status-success">退款已入账</view>
+          <view class="node-time">{{refundInfo.formatted_process_time}}</view>
+        </view>
+        <view class="timeline-item">
+          <view class="node-dot dot-done"></view>
+          <view class="node-title">商家已同意</view>
+        </view>
+      </block>
+      
+      <!-- 3: Rejected -->
+      <view class="timeline-item" wx:if="{{refundInfo.status === 3}}">
+        <image class="node-icon" src="https://img.icons8.com/material-rounded/24/dc2626/cancel.png"></image>
+        <view class="node-title status-fail">商家拒绝申请</view>
+        <view class="node-time">{{refundInfo.formatted_process_time}}</view>
+      </view>
+
+      <!-- 1: Approved -->
+      <view class="timeline-item" wx:if="{{refundInfo.status === 1}}">
+        <image class="node-icon" src="https://img.icons8.com/material-rounded/24/b42222/ok.png"></image>
+        <view class="node-title">商家已同意</view>
+        <view class="node-time">{{refundInfo.formatted_process_time}}</view>
+      </view>
+
+      <!-- 0: Applied -->
+      <view class="timeline-item" wx:if="{{refundInfo.status === 0}}">
+        <view class="node-dot node-active"></view>
+        <view class="node-title">等待商家处理</view>
+        <view class="node-sub">预计24小时内给予反馈</view>
+      </view>
+
+      <!-- All statuses show origin node -->
+      <view class="timeline-item no-border">
+        <view class="node-dot dot-done"></view>
+        <view class="node-title">售后申请已提交</view>
+        <view class="node-time">{{refundInfo.formatted_create_time}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section-card">
+    <view class="section-title">退款商品</view>
+    <view class="product-item">
+      <image class="p-img" src="{{orderItem.cover_image}}" mode="aspectFill"></image>
+      <view class="p-info">
+        <view class="p-name">{{orderItem.name}}</view>
+        <view class="p-spec">规格：{{orderItem.spec || '默认'}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section-card">
+    <view class="section-title">退款信息</view>
+    <view class="info-list">
+      <view class="info-row">
+        <text class="label">退款原因</text>
+        <text class="val">{{refundInfo.reason || '质量不满意'}}</text>
+      </view>
+      <view class="info-row">
+        <text class="label">退款金额</text>
+        <text class="val">¥ {{refundAmount}}</text>
+      </view>
+      <view class="info-row">
+        <text class="label">申请时间</text>
+        <text class="val">{{refundInfo.create_time || '2023-11-14 10:30'}}</text>
+      </view>
+      <view class="info-row">
+        <text class="label">退款单号</text>
+        <text class="val">{{refundInfo.refund_no}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer">
+    <button class="btn-outline" open-type="contact" wx:if="{{refundInfo.status === 3}}">联络客服</button>
+    <button class="btn-rebuy" bindtap="goHome">{{refundInfo.status === 3 ? '重新购买' : '再次请香'}}</button>
+  </view>
+</view>

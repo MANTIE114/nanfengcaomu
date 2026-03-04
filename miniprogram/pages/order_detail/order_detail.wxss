@@ -1,0 +1,234 @@
+/* pages/order_detail/order_detail.wxss */
+.container {
+  background: #f8f6f6;
+  min-height: 100vh;
+  padding-bottom: 180rpx;
+}
+
+/* ══ 状态头部 ══ */
+.status-header {
+  padding: 56rpx 40rpx 48rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+}
+.status-pending { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); }
+.status-paid    { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); }
+.status-shipped { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); }
+.status-cancelled { background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); }
+
+.status-icon-wrap {
+  width: 88rpx; height: 88rpx;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.7);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.06);
+}
+.status-icon { font-size: 44rpx; }
+.status-pending .status-icon-wrap { box-shadow: 0 4rpx 16rpx rgba(234,88,12,0.15); }
+.status-paid    .status-icon-wrap { box-shadow: 0 4rpx 16rpx rgba(22,163,74,0.15); }
+.status-paid    .status-icon { color: #16a34a; }
+
+.status-title { font-size: 44rpx; font-weight: bold; color: #1e293b; margin-bottom: 12rpx; }
+.status-paid .status-title { color: #15803d; letter-spacing: 0.05em; }
+.status-sub { font-size: 26rpx; color: #64748b; line-height: 1.6; }
+
+/* ══ 通用卡片 ══ */
+.section {
+  background: #fff;
+  margin-top: 16rpx;
+  padding: 32rpx;
+}
+
+/* ══ 物流进度条 ══ */
+.progress-card { padding: 32rpx 24rpx; }
+.progress-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.step { display: flex; flex-direction: column; align-items: center; flex: 0 0 auto; min-width: 80rpx; }
+.step-dot {
+  width: 28rpx; height: 28rpx;
+  border-radius: 50%;
+  background: #e2e8f0;
+  margin-bottom: 12rpx;
+  border: 3rpx solid #e2e8f0;
+}
+.step-done .step-dot {
+  background: #b42222;
+  border-color: #b42222;
+  box-shadow: 0 0 0 4rpx rgba(180,34,34,0.15);
+}
+.step-current .step-dot {
+  width: 36rpx; height: 36rpx;
+  box-shadow: 0 0 0 6rpx rgba(180,34,34,0.2);
+}
+.step-label { font-size: 20rpx; color: #94a3b8; text-align: center; white-space: nowrap; }
+.step-done .step-label { color: #b42222; font-weight: bold; }
+
+.step-line {
+  flex: 1;
+  height: 3rpx;
+  background: #e2e8f0;
+  margin: 0 4rpx;
+  margin-bottom: 30rpx;
+}
+.line-done { background: #b42222; }
+
+/* ══ 地址卡片 ══ */
+.address-card {
+  display: flex;
+  align-items: center;
+  border-top: 4rpx dashed rgba(180, 34, 34, 0.2);
+}
+.address-editable:active { background: #fdf8f8; }
+.address-icon { margin-right: 24rpx; flex-shrink: 0; display: flex; align-items: center; }
+.icon-img { width: 48rpx; height: 48rpx; }
+.address-info { flex: 1; }
+.person { display: flex; align-items: baseline; gap: 20rpx; margin-bottom: 10rpx; }
+.name { font-size: 32rpx; font-weight: bold; color: #1e293b; }
+.phone { font-size: 26rpx; color: #64748b; }
+.addr-detail { font-size: 24rpx; color: #64748b; line-height: 1.6; }
+.addr-arrow { font-size: 44rpx; color: #cbd5e1; margin-left: 16rpx; }
+
+.no-addr { display: flex; flex-direction: column; }
+.no-addr-text { font-size: 30rpx; color: #334155; font-weight: bold; }
+.no-addr-tip { font-size: 24rpx; color: #b42222; margin-top: 8rpx; }
+
+/* ══ 商品明细 ══ */
+.section-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #334155;
+  margin-bottom: 28rpx;
+  padding-left: 16rpx;
+  border-left: 6rpx solid #b42222;
+}
+.item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 28rpx;
+  padding-bottom: 28rpx;
+  border-bottom: 1rpx solid #f8f6f6;
+}
+.item:last-of-type { border-bottom: none; margin-bottom: 0; }
+.item-img {
+  width: 140rpx; height: 140rpx;
+  border-radius: 16rpx;
+  background: #f1f5f9;
+  flex-shrink: 0;
+}
+.item-info {
+  flex: 1;
+  margin-left: 24rpx;
+  display: flex;
+  flex-direction: column;
+}
+.item-name { font-size: 28rpx; color: #1e293b; font-weight: bold; line-height: 1.4; margin-bottom: 12rpx; }
+.item-meta { }
+.tag {
+  font-size: 20rpx; color: #b42222;
+  background: rgba(180,34,34,0.06);
+  padding: 4rpx 12rpx;
+  border-radius: 6rpx;
+}
+.item-right {
+  display: flex; flex-direction: column; align-items: flex-end;
+  justify-content: flex-start;
+}
+.item-price { font-size: 30rpx; font-weight: bold; color: #b42222; }
+.item-qty { font-size: 24rpx; color: #94a3b8; margin-top: 8rpx; }
+
+.total-row {
+  display: flex; justify-content: flex-end; align-items: baseline;
+  border-top: 1rpx solid #f1f5f9;
+  padding-top: 24rpx; margin-top: 16rpx;
+}
+.total-label { font-size: 24rpx; color: #64748b; }
+.total-price { font-size: 40rpx; font-weight: bold; color: #b42222; margin-left: 8rpx; }
+
+/* ══ 订单信息 ══ */
+.info-card { padding-bottom: 40rpx; }
+.info-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #f8f6f6;
+}
+.info-row:last-child { border-bottom: none; }
+.info-label { font-size: 26rpx; color: #64748b; }
+.info-value { font-size: 26rpx; color: #1e293b; }
+
+/* ══ 底部悬浮操作栏 ══ */
+.footer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  display: flex;
+  gap: 20rpx;
+  justify-content: flex-end;
+  background: #fff;
+  padding: 20rpx 32rpx calc(20rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -4rpx 20rpx rgba(0,0,0,0.04);
+  z-index: 100;
+}
+.logistics-card {
+  display: flex;
+  align-items: center;
+  padding: 30rpx;
+  background-color: #fff;
+  margin-bottom: 20rpx;
+}
+
+.logistics-icon {
+  width: 80rpx;
+  height: 80rpx;
+  background-color: #fef2f2;
+  border-radius: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logistics-info {
+  flex: 1;
+  margin-left: 24rpx;
+}
+
+.logistics-status {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #2563eb;
+  margin-bottom: 8rpx;
+}
+
+.logistics-desc {
+  font-size: 24rpx;
+  color: #475569;
+  line-height: 1.4;
+  margin-bottom: 6rpx;
+}
+
+.logistics-time {
+  font-size: 20rpx;
+  color: #94a3b8;
+}
+
+.btn {
+  height: 64rpx !important;
+  min-height: 0 !important;
+  padding: 0 40rpx !important;
+  border-radius: 32rpx !important;
+  font-size: 24rpx !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 500 !important;
+}
+.btn::after { display: none; }
+.btn-outline { border: 1rpx solid #cbd5e1; color: #64748b; background: transparent; }
+.btn-primary { background: #b42222; color: #fff; }
+.btn-danger   { background: #dc2626; color: #fff; }

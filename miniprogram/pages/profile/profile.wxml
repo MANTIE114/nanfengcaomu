@@ -35,22 +35,35 @@
   <view class="px-4 mt-6 space-y-6">
     <!-- Orders Section -->
     <view class="bg-white rounded-xl p-4 shadow-sm mb-6">
-      <view class="flex justify-between items-center mb-6 pb-4 border-b border-primary-5">
+      <view class="flex justify-between items-center mb-6 pb-4 border-b border-primary-5" bindtap="goToOrders">
         <view class="text-base font-bold text-slate-800">我的订单</view>
-        <view class="text-xs text-slate-400">全部订单 ></view>
+        <view class="text-xs text-slate-400">全部订单 ›</view>
       </view>
-      <view class="flex justify-between text-center px-2">
-        <view class="flex-col items-center">
-          <view class="w-10 h-10 rounded-lg bg-primary-5 flex items-center justify-center text-primary mx-auto mb-2 text-sm font-bold">待付款</view>
+      <view class="flex justify-between items-center px-2">
+        <view class="order-status-btn" bindtap="goToOrdersTab" data-status="0">
+          <view class="status-icon-box">
+            <image src="https://img.icons8.com/ios/50/b42222/wallet--v1.png" class="status-img"></image>
+            <!-- <view class="badge" wx:if="{{orderCount.pending > 0}}">{{orderCount.pending}}</view> -->
+          </view>
+          <text class="status-label">待付款</text>
         </view>
-        <view class="flex-col items-center">
-          <view class="w-10 h-10 rounded-lg bg-primary-5 flex items-center justify-center text-primary mx-auto mb-2 text-sm font-bold">待发货</view>
+        <view class="order-status-btn" bindtap="goToOrdersTab" data-status="1">
+          <view class="status-icon-box">
+            <image src="https://img.icons8.com/ios/50/b42222/box--v1.png" class="status-img"></image>
+          </view>
+          <text class="status-label">待发货</text>
         </view>
-        <view class="flex-col items-center">
-          <view class="w-10 h-10 rounded-lg bg-primary-5 flex items-center justify-center text-primary mx-auto mb-2 text-sm font-bold">待收货</view>
+        <view class="order-status-btn" bindtap="goToOrdersTab" data-status="2">
+          <view class="status-icon-box">
+            <image src="https://img.icons8.com/ios/50/b42222/truck.png" class="status-img"></image>
+          </view>
+          <text class="status-label">待收货</text>
         </view>
-        <view class="flex-col items-center">
-          <view class="w-10 h-10 rounded-lg bg-primary-5 flex items-center justify-center text-primary mx-auto mb-2 text-sm font-bold">退换货</view>
+        <view class="order-status-btn" bindtap="goToOrdersTab" data-status="4">
+          <view class="status-icon-box">
+            <image src="https://img.icons8.com/ios/50/b42222/refund.png" class="status-img"></image>
+          </view>
+          <text class="status-label">退换货</text>
         </view>
       </view>
     </view>
@@ -61,7 +74,7 @@
         <view class="text-sm font-medium text-slate-700">我的收藏</view>
         <view class="text-slate-300">></view>
       </view>
-      <view class="flex items-center justify-between p-4 border-b border-slate-50">
+      <view class="flex items-center justify-between p-4 border-b border-slate-50" bindtap="goToAddress">
         <view class="text-sm font-medium text-slate-700">收货地址</view>
         <view class="text-slate-300">></view>
       </view>

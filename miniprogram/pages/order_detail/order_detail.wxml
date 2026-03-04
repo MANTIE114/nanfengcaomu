@@ -1,0 +1,150 @@
+<!-- pages/order_detail/order_detail.wxml -->
+<view class="container" wx:if="{{order}}">
+
+  <!-- ══ 状态头部 ══ -->
+  <view class="status-header status-{{order.status === -1 ? 'cancelled' : (order.status === 0 ? 'pending' : (order.status === 1 ? 'paid' : (order.status === 2 ? 'shipped' : 'done')))}}">
+    <view class="status-icon-wrap">
+      <text class="status-icon">{{order.status === -1 ? '⚪' : (order.status === 0 ? '⏰' : (order.status === 1 ? '✓' : (order.status === 2 ? '🚚' : '㊗️')))}}</text>
+    </view>
+    <view class="status-title">
+      {{order.status === -1 ? '订单已取消' : (order.status === 0 ? '待付款' : (order.status === 1 ? '买家已付款' : (order.status === 2 ? '已发货' : '交易完成')))}}
+    </view>
+    <view class="status-sub">
+      {{order.status === -1 ? '此单香缘已了，期待与您再次相遇' :
+        (order.status === 0 ? '请尽快完成支付，留存属于您的这份香意' :
+        (order.status === 1 ? '我们将尽快为您精心准备这份雅礼' : 
+        (order.status === 2 ? '您的香品已开启寻香之旅' : '愿此香气常伴您左右')))}}
+    </view>
+  </view>
+
+
+
+  <!-- ══ 物流进度条（已支付及之后显示）══ -->
+  <view class="section progress-card" wx:if="{{order.status >= 1}}">
+    <view class="progress-steps">
+      <view class="step {{order.status >= 0 ? 'step-done' : ''}}">
+        <view class="step-dot"></view>
+        <view class="step-label">已下单</view>
+      </view>
+      <view class="step-line {{order.status >= 1 ? 'line-done' : ''}}"></view>
+      <view class="step {{order.status >= 1 ? 'step-done step-current' : ''}}">
+        <view class="step-dot"></view>
+        <view class="step-label">已付款</view>
+      </view>
+      <view class="step-line {{order.status >= 2 ? 'line-done' : ''}}"></view>
+      <view class="step {{order.status >= 2 ? 'step-done step-current' : ''}}">
+        <view class="step-dot"></view>
+        <view class="step-label">已发货</view>
+      </view>
+      <view class="step-line {{order.status >= 3 ? 'line-done' : ''}}"></view>
+      <view class="step {{order.status >= 3 ? 'step-done' : ''}}">
+        <view class="step-dot"></view>
+        <view class="step-label">已收货</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ══ 物流追踪（已发货显示）══ -->
+  <view class="section logistics-card" wx:if="{{order.status >= 2}}" bindtap="viewLogistics">
+    <view class="logistics-icon">
+      <image src="https://img.icons8.com/ios/50/b42222/truck--v1.png" class="icon-img"></image>
+    </view>
+    <view class="logistics-info">
+      <view class="logistics-status">您的雅物正在奔赴途中</view>
+      <view class="logistics-desc">包裹已由 [杭州分拨中心] 发出，韵达快递 #{{order.tracking_no || 'YD88231011'}}</view>
+      <view class="logistics-time">{{order.ship_time || '2023-10-24 14:30:15'}}</view>
+    </view>
+    <view class="addr-arrow">›</view>
+  </view>
+
+
+  <!-- ══ 收件地址 ══ -->
+  <view class="section address-card {{order.status === 0 ? 'address-editable' : ''}}"
+        bindtap="{{order.status === 0 ? 'changeAddress' : ''}}">
+    <view class="address-icon">
+      <image src="https://img.icons8.com/ios/50/b42222/marker--v1.png" class="icon-img"></image>
+    </view>
+    <view class="address-info" wx:if="{{address}}">
+      <view class="person">
+        <text class="name">{{address.recipient}}</text>
+        <text class="phone">{{address.phone}}</text>
+      </view>
+      <view class="addr-detail">{{address.province}}{{address.city}}{{address.district}} {{address.detail}}</view>
+    </view>
+    <view class="address-info" wx:else>
+      <view class="no-addr">
+        <text class="no-addr-text">请选择收件地址</text>
+        <text class="no-addr-tip">点击此处前往添加</text>
+      </view>
+    </view>
+    <view class="addr-arrow" wx:if="{{order.status === 0}}">›</view>
+  </view>
+
+  <!-- ══ 商品明细 ══ -->
+  <view class="section items-card">
+    <view class="section-title">所请香品</view>
+    <view class="item" wx:for="{{order.items}}" wx:key="id" bindtap="goToProduct" data-id="{{item.product_id}}">
+      <image src="{{item.cover_image}}" mode="aspectFill" class="item-img"></image>
+      <view class="item-info">
+        <view class="item-name">{{item.name}}</view>
+        <view class="item-meta">
+          <text class="tag">古法手工</text>
+        </view>
+      </view>
+      <view class="item-right">
+        <view class="item-price">¥{{item.price}}</view>
+        <view class="item-qty">× {{item.quantity}}</view>
+      </view>
+    </view>
+    <view class="total-row">
+      <text class="total-label">共 {{totalCount}} 件，实付：</text>
+      <text class="total-price">¥{{order.total_amount}}</text>
+    </view>
+  </view>
+
+  <!-- ══ 订单信息 ══ -->
+  <view class="section info-card">
+    <view class="info-row">
+      <text class="info-label">订单编号</text>
+      <text class="info-value selectable">{{order.order_no}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">下单时间</text>
+      <text class="info-value">{{order.create_time || '刚刚'}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">支付方式</text>
+      <text class="info-value">微信支付</text>
+    </view>
+    <view class="info-row" wx:if="{{order.pay_time}}">
+      <text class="info-label">支付时间</text>
+      <text class="info-value">{{order.pay_time}}</text>
+    </view>
+  </view>
+
+  <!-- ══ 底部操作栏 ══ -->
+  <view class="footer">
+    <!-- 待付款 -->
+    <block wx:if="{{order.status === 0}}">
+      <button class="btn btn-outline" bindtap="cancelOrder">取消订单</button>
+      <button class="btn btn-primary" bindtap="payOrder">立即支付</button>
+    </block>
+    <!-- 已支付·待发货 -->
+    <block wx:if="{{order.status === 1}}">
+      <button class="btn btn-outline" open-type="contact">联络客服</button>
+      <button class="btn btn-danger" bindtap="applyRefund">申请售后</button>
+    </block>
+    <!-- 已发货 / 已完成 -->
+    <block wx:if="{{order.status === 2 || order.status === 3}}">
+      <button class="btn btn-outline" bindtap="rebuy">再次请香</button>
+      <button class="btn btn-primary" wx:if="{{order.status === 2}}" bindtap="confirmReceive">确认收货</button>
+      <button class="btn btn-danger" wx:if="{{order.status === 3}}" bindtap="applyRefund">申请售后</button>
+    </block>
+    <!-- 售后中 / 已退款 -->
+    <block wx:if="{{order.status === 4 || order.status === 5}}">
+      <button class="btn btn-outline" open-type="contact">联络客服</button>
+      <button class="btn btn-primary" bindtap="viewRefund">查看售后进度</button>
+    </block>
+  </view>
+
+</view>

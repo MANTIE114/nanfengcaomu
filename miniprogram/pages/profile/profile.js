@@ -35,5 +35,14 @@ Page({
     // Navigation functions...
     goToOrders() {
         wx.navigateTo({ url: '/pages/orders/orders' });
+    },
+
+    goToOrdersTab(e) {
+        const status = e.currentTarget.dataset.status;
+        wx.navigateTo({ url: `/pages/orders/orders?status=${status}` });
+    },
+
+    goToAddress() {
+        wx.navigateTo({ url: '/pages/address/address' });
     }
 });

@@ -1,4 +1,6 @@
 {
     "navigationBarTitleText": "南风草木",
+    "enablePullDownRefresh": true,
+    "backgroundTextStyle": "dark",
     "usingComponents": {}
 }

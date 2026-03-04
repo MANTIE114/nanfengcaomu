@@ -1,0 +1,15 @@
+<!-- pages/payment_success/payment_success.wxml -->
+<view class="page">
+  <view class="success-box">
+    <view class="icon-wrap">
+      <image src="https://img.icons8.com/ios-filled/100/b42222/checked--v1.png" class="icon-img"></image>
+    </view>
+    <view class="title">付款成功</view>
+    <view class="subtitle">您的香品订单已完成支付，正在整理结单</view>
+  </view>
+
+  <view class="action-btns">
+    <button class="btn-primary" bindtap="goToOrderDetail">查看待发货详情</button>
+    <button class="btn-outline" bindtap="goToHome">返回首页</button>
+  </view>
+</view>

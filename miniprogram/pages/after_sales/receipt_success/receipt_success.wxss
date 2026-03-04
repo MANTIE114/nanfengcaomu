@@ -1,0 +1,148 @@
+/* pages/after_sales/receipt_success/receipt_success.wxss */
+.container {
+  min-height: 100vh;
+  background-color: #f8f6f6;
+  padding-bottom: 60rpx;
+}
+
+.success-header {
+  background-color: #fff;
+  padding: 80rpx 40rpx;
+  text-align: center;
+  margin-bottom: 20rpx;
+}
+
+.icon-box {
+  width: 120rpx;
+  height: 120rpx;
+  background-color: #b42222;
+  border-radius: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 40rpx;
+}
+
+.check-icon {
+  color: #fff;
+  font-size: 60rpx;
+  font-weight: bold;
+}
+
+.title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #1e293b;
+  margin-bottom: 16rpx;
+}
+
+.subtitle {
+  font-size: 26rpx;
+  color: #64748b;
+}
+
+.action-box {
+  padding: 40rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+}
+
+.btn {
+  width: 100% !important;
+  height: 90rpx !important;
+  border-radius: 45rpx !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 30rpx !important;
+  font-weight: 500 !important;
+}
+
+.btn-primary {
+  background-color: #b42222 !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.btn-outline {
+  background-color: transparent !important;
+  color: #64748b !important;
+  border: 1rpx solid #cbd5e1 !important;
+}
+
+.recommend-section {
+  padding: 40rpx 20rpx;
+}
+
+.recommend-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20rpx;
+  margin-bottom: 40rpx;
+}
+
+.recommend-title .line {
+  flex: 1;
+  height: 1rpx;
+  background-color: #e2e8f0;
+  max-width: 60rpx;
+}
+
+.recommend-title .text {
+  font-size: 24rpx;
+  color: #94a3b8;
+  letter-spacing: 4rpx;
+}
+
+.product-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+.product-item {
+  width: calc(50% - 10rpx);
+  background-color: #fff;
+  border-radius: 12rpx;
+  overflow: hidden;
+}
+
+.product-img {
+  width: 100%;
+  height: 340rpx;
+  background-color: #f1f5f9;
+}
+
+.product-info {
+  padding: 20rpx;
+}
+
+.product-name {
+  font-size: 26rpx;
+  color: #1e293b;
+  margin-bottom: 10rpx;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-price {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #b42222;
+}
+
+.footer-zen {
+  margin-top: 60rpx;
+  text-align: center;
+}
+
+.zen-text {
+  font-size: 24rpx;
+  color: #94a3b8;
+  font-style: italic;
+  font-family: serif;
+}

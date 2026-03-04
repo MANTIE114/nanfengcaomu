@@ -14,10 +14,64 @@
 .card-glass {
   @apply bg-white/80 backdrop-blur-md rounded-2xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.04)] transition-all duration-300;
 }
+
 .card-glass:hover {
   @apply shadow-[0_12px_48px_rgba(180,34,34,0.08)] transform -translate-y-1 border-white;
 }
 
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+@keyframes progress-flow {
+  0% {
+    transform: scaleX(0);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scaleX(0.7);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
+  }
+}
+
+.animate-progress-flow {
+  animation: progress-flow 0.8s ease-out infinite;
+}
+
+@keyframes zoom-in-95 {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-zoom-in-95 {
+  animation: zoom-in-95 0.2s ease-out forwards;
+}
+
+@keyframes bounce-subtle {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
 }

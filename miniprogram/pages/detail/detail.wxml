@@ -5,6 +5,7 @@
     
     <view class="hero-content">
       <view class="product-title">{{product.name || '传承·云起线香'}}</view>
+      <view class="product-subtitle" wx:if="{{product.subtitle}}">{{product.subtitle}}</view>
       
       <view class="price-row">
         <text class="price">¥{{product.price || '298'}}</text>

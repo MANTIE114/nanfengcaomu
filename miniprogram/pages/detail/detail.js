@@ -37,10 +37,22 @@ Page({
         });
     },
     buyNow() {
-        this.addToCart(() => {
-            wx.switchTab({
-                url: '/pages/cart/cart'
+        if (!this.data.product) return;
+        wx.showLoading({ title: '单据生成中...' });
+        const items = [{
+            productId: this.data.product.id,
+            quantity: 1,
+            price: this.data.product.price
+        }];
+        api.createOrder({ items }).then(data => {
+            wx.hideLoading();
+            wx.navigateTo({
+                url: '/pages/order_detail/order_detail?id=' + data.orderId
             });
+        }).catch(err => {
+            wx.hideLoading();
+            console.error(err);
+            wx.showToast({ title: '生成失败', icon: 'error' });
         });
     },
     switchTab(e) {

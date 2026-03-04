@@ -2,9 +2,12 @@ page {
   font-family: 'Noto Serif', 'Noto Serif SC', serif;
   background-color: #f8f6f6;
   color: #0f172a;
+}
+view, text, button, image, scroll-view {
   box-sizing: border-box;
 }
 .flex { display: flex; }
+.text-center { text-align: center; }
 .flex-col { flex-direction: column; }
 .justify-between { justify-content: space-between; }
 .items-center { align-items: center; }
