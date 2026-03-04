@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&amp;family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b42222",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#201212",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif", "Noto Serif SC", "serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Noto Serif', 'Noto Serif SC', serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .zen-gradient {
+            background: linear-gradient(to bottom, rgba(248, 246, 246, 0.2), rgba(248, 246, 246, 1));
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<header class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-primary/10">
+<div class="flex items-center p-4 justify-between max-w-md mx-auto w-full">
+<div class="text-primary flex size-10 shrink-0 items-center justify-center">
+<span class="material-symbols-outlined text-2xl">search</span>
+</div>
+<div class="flex flex-col items-center">
+<h1 class="text-primary text-xl font-bold tracking-widest">南风草木</h1>
+<span class="text-[10px] uppercase tracking-[0.2em] text-primary/60">NAN FENG CAO MU</span><span class="text-[8px] uppercase tracking-[0.1em] text-primary/40 mt-0.5">微信小程序</span>
+</div>
+<div class="flex w-10 items-center justify-end">
+<button class="text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl">menu</span>
+</button>
+</div>
+</div>
+</header>
+<main class="flex-1 max-w-md mx-auto w-full pb-24">
+<section class="relative h-80 w-full overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Misty ink wash painting of Chinese mountains" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDaBP82_28p6mCz0TH1ErNHvcXhm2DvPoiRBfuzteat20yKt6JWrLVqnzYJpy7Xrx_rb9UESvQbvLtrLu-bNI9P7kwOz_hpoNiEZNGE8CSPNH5F_PAiHahrLm-UY0nDihP7gGpcBGV43NdNpwAyOrMwOBiTHUamFx7iQbZsjwPLaDmYjAUpSSRMoAywzvfi1PJearGuk3UT_Y1QEe54U_g9Vn3xcPTHTR0fx8UE4X0z0re4mAfoN6PpfU7T3HHXUhw95loDWwavyx0');">
+<div class="absolute inset-0 bg-gradient-to-t from-background-light via-transparent to-transparent dark:from-background-dark"></div>
+</div>
+<div class="relative h-full flex flex-col justify-end p-6 pb-10">
+<div class="border-l-2 border-primary pl-4">
+<h2 class="text-3xl font-bold text-slate-900 dark:text-slate-100 leading-tight">寻香访道</h2>
+<p class="text-sm text-slate-600 dark:text-slate-400 mt-2 tracking-widest italic">The Essence of Tranquility</p>
+</div>
+</div>
+</section>
+<section class="px-4 py-8">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-lg font-bold tracking-wider text-slate-800 dark:text-slate-200">
+<span class="text-primary mr-2">/</span>香材分类
+                </h3>
+<span class="text-xs text-primary/60 uppercase tracking-tighter">Categories</span>
+</div>
+<div class="grid grid-cols-2 gap-4"><div class="group relative aspect-[4/5] rounded-xl overflow-hidden bg-primary/5">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Traditional stick incense" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB3Quce4Byrq82Wa30RMoSyAZ27TZNtembxKFPWcBev_t5i6LS9eoI1ODhN-jJIiFuqO69MdUF_eeOdrvetmeRcaIl3F4F3NEu2oUCnm2UUhztr_eRMh-urLkVVXTwrR8oIkzt2s7UeO1gruYi9IA3gBPWFsRlskAMmrYm-E7MFZIJoxpy2PzxQ77JvfcMyOepbafPl-oxD2tPe-TQr3ULOvRG89fq-M3GUz6IV_NODsUWpGUxuFSl40xVsSSOunAInD_yrK0UsgDg');"></div>
+<div class="absolute inset-0 bg-black/20"></div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<p class="text-white text-base font-bold">线香</p>
+<p class="text-white/70 text-[10px] uppercase">Stick Incense</p>
+</div>
+</div>
+<div class="group relative aspect-[4/5] rounded-xl overflow-hidden bg-primary/5">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Aromatherapy diffusers and oils" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAsQE282vJcETqNCFJtUBVFI-2vdcfXSwG71dWi3HJr50pIv9AkABN2nVWSSh1ZFNQFU5XAO_KEdOBjFuw0ldihXVksr1HXgHxmmMaIpD-gvJHHA_iHiCUvLtDjbUczIZPCXKK1O7UOLsgdHdfI6edRuDuXdOo4OjcGTyKJApIyD0DPrNiegDMhILVp0KhY42bcJKgWy-84zjrBVr9h4gtdbtEs9oClzK_nloXK1b4awMNXho4yP3mRcheFwmA-rAgaumULLkgaWD0');"></div>
+<div class="absolute inset-0 bg-black/20"></div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<p class="text-white text-base font-bold">香薰</p>
+<p class="text-white/70 text-[10px] uppercase">Aromatherapy</p>
+</div>
+</div>
+<div class="group relative aspect-[4/5] rounded-xl overflow-hidden bg-primary/5">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Incense beads and tablets" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDU_wRD-n8rplOIR3sVUaWdjfO5u6Frr4G7zPxHp9C7fkmaOWwNfd9AnnmyOLifXpG5RmWyNfulmsf93XqeobZj-kchv39Q8qeEmaowGAB7DHqeSN5Y5uerX9UheRDA1JGxfp_qsWq4yZWnZJM7iECK7KNC87IGSTkLOKVFPjQXFWAueWcY2-cwleyjxpLB-pEgRYOmUXW9U4xtwf9iWGwy700RKnZT2LDGGI6dMV_mCMiidPaDtHlJjuBoGu1pEMD7VqOIqs5bwjc');"></div>
+<div class="absolute inset-0 bg-black/20"></div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<p class="text-white text-base font-bold">香珠香牌</p>
+<p class="text-white/70 text-[10px] uppercase">Incense Beads</p>
+</div>
+</div>
+<div class="group relative aspect-[4/5] rounded-xl overflow-hidden bg-primary/5">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Lacquer beads jewelry" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDwPC8OhhM23EIYvMUet7Nf6uDxi2KqGNAA6k4CBkHyGOCNPZZwOlyC-Uau21TpQtEhPYdTcBcPUnXpCFbs1A7ir9xKevELak7Z3EESZxcd-z-28qJW6scOX169BIn7HomHKf_ccZp3RoSZe7asnGTXa0SnV0HWAeubIhHZeK0ty9mpfx5sfAJPJfvCl8IogO9vSAiMnUUfFNFNdxz3giWM0qVDYtLlwlOtac40e6EeZEzKzm_gpfehl-tnmHZe7EY52A0rrM_XTlM');"></div>
+<div class="absolute inset-0 bg-black/20"></div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<p class="text-white text-base font-bold">大漆珠</p>
+<p class="text-white/70 text-[10px] uppercase">Lacquer Beads</p>
+</div>
+</div>
+<div class="group relative aspect-[4/5] rounded-xl overflow-hidden bg-primary/5">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" data-alt="Crafted bracelets" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB3Quce4Byrq82Wa30RMoSyAZ27TZNtembxKFPWcBev_t5i6LS9eoI1ODhN-jJIiFuqO69MdUF_eeOdrvetmeRcaIl3F4F3NEu2oUCnm2UUhztr_eRMh-urLkVVXTwrR8oIkzt2s7UeO1gruYi9IA3gBPWFsRlskAMmrYm-E7MFZIJoxpy2PzxQ77JvfcMyOepbafPl-oxD2tPe-TQr3ULOvRG89fq-M3GUz6IV_NODsUWpGUxuFSl40xVsSSOunAInD_yrK0UsgDg');"></div>
+<div class="absolute inset-0 bg-black/20"></div>
+<div class="absolute bottom-0 left-0 p-4 w-full">
+<p class="text-white text-base font-bold">工艺手串</p>
+<p class="text-white/70 text-[10px] uppercase">Craft Bracelets</p>
+</div>
+</div></div>
+</section>
+<section class="bg-primary/5 py-10 px-4 mt-4">
+<div class="text-center mb-8">
+<h3 class="text-2xl font-bold tracking-[0.2em] text-slate-800 dark:text-slate-200">古法匠心 · 南风草木</h3>
+<p class="text-xs text-primary mt-2 uppercase tracking-widest">Zen Living Selection</p>
+<div class="w-8 h-px bg-primary mx-auto mt-4"></div>
+</div>
+<div class="space-y-8"><div class="bg-background-light dark:bg-background-dark rounded-xl overflow-hidden shadow-sm">
+<div class="aspect-video bg-cover bg-center relative" data-alt="Traditional Stick Incense Set" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAypS4oWczYY3zR2NrxVg2YDDUrkPQQkayQ4NyLAU13Qessqt0SsPqvqsMzDy0yYohiJY2w997FzzdHA9RrB47HTYdi9ALGuKQgd1IAkmp9VjFCTYXdAerNq2_XmEVtZWNE-tTSJOQBpbFjdXb3qsnLoge2eM9PRT8WxBgm8t6J69QsioBZcxL0jp2jNn18T_tILIm9moyS97Pw5hxIGSVmu3hlFH9knNZZTge53oeZX0Bd9rOEwEypSDwZ7hi8j9H-5LZgPIPdzHI');"><div class="absolute top-4 left-4 bg-primary/90 text-white text-[10px] px-2 py-1 rounded tracking-widest">纯手工制作</div></div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-2">
+<h4 class="text-lg font-bold">传承 · 线香套装</h4>
+<span class="text-primary font-bold">¥368</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-4">精选优质香材，经由经验丰富的匠人纯手工搓制，香气清雅脱俗，适合日常修行或居室熏香。</p>
+<button class="w-full py-3 bg-primary text-white rounded-lg text-sm font-medium tracking-widest">立即请购</button>
+</div>
+</div>
+<div class="bg-background-light dark:bg-background-dark rounded-xl overflow-hidden shadow-sm">
+<div class="aspect-video bg-cover bg-center relative" data-alt="Premium Lacquer Bead Bracelet" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuB5RTeyhsiZfUa5qhR-klL2ol5i1vUqWcRBc8OJdT1ym0WxAQlrqcJtY_PGFMRSNFIxXBLzqowF4sWTgQdpY9WjxK8pfDPOSpK8rT_3FdWTbliYwLzFmK68OQlJIxo_o1oci0Xj4YT2NX1337NHvnYtoLSPIoF7TRlYT1z9E-RljcMaBRySlHDDJCyQXgm8W69Xbkzt06mrPDyLM_kEKg0PzjU-3S1FBaj-dAxOY51gEQpWt7eLNSmOOMZAe00O4Uqr_lJwj-oDqAc');"><div class="absolute top-4 left-4 bg-primary/90 text-white text-[10px] px-2 py-1 rounded tracking-widest">古法研制</div></div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-2">
+<h4 class="text-lg font-bold">精品 · 大漆珠手串</h4>
+<span class="text-primary font-bold">¥880</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-4">选用上等木料为胎，历经数十道大漆工序，光泽润泽，色彩古朴，每一颗都承载着时光的温润。</p>
+<button class="w-full py-3 border border-primary text-primary rounded-lg text-sm font-medium tracking-widest">查看详情</button>
+</div>
+</div></div>
+</section>
+<section class="px-4 py-12 text-center">
+<div class="inline-block p-8 border border-primary/20 rounded-xl">
+<span class="material-symbols-outlined text-4xl text-primary/40 mb-4">spa</span>
+<p class="text-slate-600 dark:text-slate-400 text-sm italic leading-loose">南风草木，匠心传承<br/>于自然深处，寻一缕古法醇香</p>
+</div>
+</section>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 bg-background-light dark:bg-background-dark border-t border-primary/10 px-4 py-2 z-50">
+<div class="flex justify-around items-center max-w-md mx-auto">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined fill-1">home_app_logo</span>
+<span class="text-[10px] font-medium">首页</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">category</span>
+<span class="text-[10px] font-medium">分类</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">shopping_bag</span>
+<span class="text-[10px] font-medium">香蓝</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">我的</span>
+</a>
+</div>
+</nav>
+</body></html>

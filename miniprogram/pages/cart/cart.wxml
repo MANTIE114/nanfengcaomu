@@ -1,0 +1,45 @@
+<view class="container pb-32">
+  <view class="header text-center py-6 px-4 border-b border-primary-5">
+    <view class="text-primary text-sm font-bold tracking-widest uppercase">南风草木</view>
+    <view class="text-primary-60 text-xs tracking-widest mt-1 italic">NAN FENG CAO MU</view>
+  </view>
+
+  <view class="cart-list px-4">
+    <!-- Item 1 -->
+    <view class="cart-item flex py-6 border-b border-primary-5" wx:for="{{cartItems}}" wx:key="id">
+      <image class="cart-img rounded-lg shrink-0" src="{{item.cover_image}}" mode="aspectFill"></image>
+      <view class="cart-info flex-col justify-between ml-4 w-full">
+        <view>
+          <view class="flex justify-between items-start">
+            <view class="text-base font-bold text-slate-900">{{item.name}}</view>
+            <view class="text-slate-400">✕</view>
+          </view>
+          <view class="mt-2 inline-block">
+            <text class="tag bg-primary-5 text-primary text-[20rpx] px-2 py-1 rounded">精选商品</text>
+          </view>
+        </view>
+        <view class="flex items-center justify-between mt-4">
+          <view class="text-primary text-lg font-bold">¥{{item.price}}</view>
+          <view class="flex items-center gap-3">
+            <view class="btn-qty border border-primary-20 text-slate-900">-</view>
+            <view class="text-sm">{{item.quantity}}</view>
+            <view class="btn-qty border border-primary-20 text-slate-900">+</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="checkout-bar fixed bottom-0 left-0 w-full bg-white border-t border-primary-10 p-6 z-50">
+    <view class="flex items-center justify-between mb-4">
+      <view class="flex-col">
+        <text class="text-slate-400 text-xs tracking-widest block">TOTAL AMOUNT</text>
+        <text class="text-primary text-2xl font-bold block mt-1">¥{{totalPrice}}</text>
+      </view>
+      <view class="text-slate-400 text-xs mt-2">{{totalCount}} 件商品</view>
+    </view>
+    <button class="w-full bg-primary text-white py-4 rounded-lg font-bold tracking-widest text-lg" bindtap="checkout">
+      立即结算
+    </button>
+  </view>
+</view>

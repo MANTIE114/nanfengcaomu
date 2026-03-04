@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&amp;family=Noto+Sans+SC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b42222",
+                        "background-light": "#ffffff",
+                        "background-dark": "#201212",
+                        "zen-green": "#2d3e33",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif SC", "serif"],
+                        "sans": ["Noto Sans SC", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }</script>
+<style>body {
+    font-family: "Noto Sans SC", sans-serif
+    }
+.font-display {
+    font-family: "Noto Serif SC", serif
+    }
+.rice-paper-bg {
+    background-color: #ffffff;
+    }</style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<!-- Top Navigation -->
+<nav class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-primary/10 bg-white">
+<div class="max-w-screen-md mx-auto flex items-center justify-between p-4 flex-row">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary cursor-pointer">arrow_back_ios</span>
+</div>
+<h2 class="font-display text-lg font-bold tracking-widest text-primary flex-shrink-0">南风草木</h2><span class="ml-2 px-1.5 py-0.5 text-[10px] border border-primary/30 text-primary/70 rounded-sm font-sans font-normal tracking-normal">微信小程序</span>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer">share</span>
+<span class="material-symbols-outlined text-primary cursor-pointer">more_horiz</span>
+</div>
+</div>
+</nav>
+<main class="max-w-screen-md mx-auto pt-14 pb-24 rice-paper-bg">
+<!-- Hero Section -->
+<section class="relative">
+<div class="aspect-[4/5] w-full bg-stone-200 overflow-hidden">
+<img alt="Stick incense in wooden tray with smoke" class="w-full h-full object-cover" data-alt="Premium stick incense in dark wooden tray with rising smoke" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAy67usGIXeM1VdJs_veWT5BAsL59pz95aYESrUj84Rb6e4SaTwfEsCrSYJ39Efd6rHhGCpBl593rqLLF-fXExQYKmoiffL1UycA_DypclCx-_uZ5lyxvDvMYeMxNjis_oJK4DPUnWy9y1dg_dAsYv0pW_MP9517RvnybshBJoNR4nWwE0klPUK8klc3YiYgS3i6lkOpprtRcfM6b2DSi_sWltCsTuRrpKHySkU1-kCdX6qOXese0IEC1Jh6x3X0rHn4Aci6gj-UCM"/>
+</div>
+<div class="p-6 to-transparent -mt-12 relative z-10 bg-white">
+<div class="flex flex-col gap-2">
+<h1 class="font-display text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">传承·云起线香</h1>
+<div class="flex items-baseline gap-2 mt-2">
+<span class="text-primary text-3xl font-bold font-display">¥298</span>
+<span class="text-slate-400 line-through text-sm">¥450</span>
+</div>
+<div class="flex gap-3 mt-4">
+<span class="px-3 py-1 bg-primary/10 text-primary text-xs font-medium rounded border border-primary/20">纯手工</span>
+<span class="px-3 py-1 bg-zen-green/10 text-zen-green dark:text-zen-green/80 text-xs font-medium rounded border border-zen-green/20">古法研制</span>
+<span class="px-3 py-1 bg-primary/10 text-primary text-xs font-medium rounded border border-primary/20">天然原材</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Divider -->
+<div class="h-2"></div>
+<!-- Craftsmanship Section -->
+<section class="p-8">
+<div class="text-center mb-10">
+<h3 class="font-display text-xl font-bold tracking-[0.2em] text-zen-green dark:text-primary mb-2">匠心古法 · 制香六艺</h3>
+<div class="w-12 h-0.5 bg-primary mx-auto"></div>
+<p class="text-slate-500 text-xs mt-4 tracking-widest uppercase">Ancient Wisdom in Every Wisp</p>
+</div>
+<div class="grid grid-cols-3 gap-6">
+<div class="flex flex-col items-center text-center group">
+<div class="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mb-3 border border-primary/5 group-hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">eco</span>
+</div>
+<span class="font-display font-bold text-sm">选材</span>
+<p class="text-[10px] text-slate-400 mt-1">严选百年老料</p>
+</div>
+<div class="flex flex-col items-center text-center group">
+<div class="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mb-3 border border-primary/5 group-hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">blur_on</span>
+</div>
+<span class="font-display font-bold text-sm">研磨</span>
+<p class="text-[10px] text-slate-400 mt-1">细如罗面之粉</p>
+</div>
+<div class="flex flex-col items-center text-center group">
+<div class="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mb-3 border border-primary/5 group-hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">water_drop</span>
+</div>
+<span class="font-display font-bold text-sm">炮制</span>
+<p class="text-[10px] text-slate-400 mt-1">去燥存性温润</p>
+</div>
+<div class="flex flex-col items-center text-center group">
+<div class="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mb-3 border border-primary/5 group-hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">blender</span>
+</div>
+<span class="font-display font-bold text-sm">合香</span>
+<p class="text-[10px] text-slate-400 mt-1">众香调和共鸣</p>
+</div>
+<div class="flex flex-col items-center text-center group">
+<div class="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mb-3 border border-primary/5 group-hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">gesture</span>
+</div>
+<span class="font-display font-bold text-sm">成型</span>
+<p class="text-[10px] text-slate-400 mt-1">手工挤压入形</p>
+</div>
+<div class="flex flex-col items-center text-center group">
+<div class="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center mb-3 border border-primary/5 group-hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-primary text-3xl">wb_sunny</span>
+</div>
+<span class="font-display font-bold text-sm">晾晒</span>
+<p class="text-[10px] text-slate-400 mt-1">自然阴干纳气</p>
+</div>
+</div>
+</section>
+<!-- Divider -->
+<div class="h-2"></div>
+<!-- Product Details Section -->
+<section class="p-8">
+<h4 class="font-display text-lg font-bold border-l-4 border-primary pl-3 mb-6">产品规格</h4>
+<div class="grid grid-cols-1 gap-y-4">
+<div class="flex justify-between items-center py-2 border-b border-primary/5">
+<span class="text-slate-500 font-light">净重 / Weight</span>
+<span class="text-slate-800 dark:text-slate-200">20g (约40-45支)</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-primary/5">
+<span class="text-slate-500 font-light">长度 / Length</span>
+<span class="text-slate-800 dark:text-slate-200">21cm</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-primary/5">
+<span class="text-slate-500 font-light">燃时 / Burning Time</span>
+<span class="text-slate-800 dark:text-slate-200">约45分钟</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-primary/5">
+<span class="text-slate-500 font-light">成分 / Ingredients</span>
+<span class="text-slate-800 dark:text-slate-200">澳洲老山檀、降真香、天然楠木皮粉</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-primary/5">
+<span class="text-slate-500 font-light">储存 / Storage</span>
+<span class="text-slate-800 dark:text-slate-200">避光、防潮、置于阴凉干燥处</span>
+</div>
+</div>
+</section>
+<!-- Visual Aesthetic Images -->
+<section class="mt-4 px-4 space-y-4">
+<div class="rounded-lg overflow-hidden border border-primary/10 shadow-sm">
+<img alt="Incense detail view" class="w-full h-auto grayscale-[0.3]" data-alt="Macro detail of incense texture on rice paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtD2_xyiuXxBvHo1ZXdRbAYS772U8EoNjievY24A-Rp6k4fhE2FqM5X9DrXvCD-28V_eS19o2vj5tmV7hN-fNYtEJUSRKwUxl6qQYqND-5KlEt1XVmQ8t1a2f-XT9wBYRsPbNQZesn2KG1Ts9FsvQwL3Qsn_qJbkMNvxVLM9-87t1LXfuokKo2G9gPA8iePDT4pc_Iftf7oO3BqFHYr9j3l5QfheM0P-AUjxGhZvH7KK4ZLiUS0Qtz1RUR2DPYFdggXuS98erbCW0"/>
+</div>
+<div class="rounded-lg overflow-hidden border border-primary/10 shadow-sm">
+<img alt="Lifestyle incense scene" class="w-full h-auto" data-alt="Peaceful Zen living room with burning incense" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAq6AgGggF40CbcvleSUCwFTA1BrzlWHxbrgElEBJHZWNhwgTKAPcEEnZZh8UOYJTVZHOvYSwtSe5ZoZZcqPb0JCpzHCR7zsb2lngnVFAqZkQhqduOBybJTBjCdn5HbfDKFviVk6L2PFRB1rIiQxVFNJYm0BkxUeO0he2Lg26g9jVHyTp9t7DNuR6Uh1iA3QLRO-hBsihYZZ85bzqVlr-uw1BkO1BMvbhlb6Ge8vLj7Q8OAmZxJaXIkiuY7Axf_ivXBr3TVaZU8tpw"/>
+</div>
+</section>
+<div class="h-20"></div>
+</main>
+<!-- Floating Footer Bar -->
+<footer class="fixed bottom-0 left-0 right-0 z-50 dark:bg-background-dark border-t border-primary/10 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] bg-white">
+<div class="max-w-screen-md mx-auto px-4 h-20 flex items-center justify-between gap-4">
+<div class="flex items-center gap-6">
+<button class="flex flex-col items-center justify-center gap-0.5 group">
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary transition-colors">support_agent</span>
+<span class="text-[10px] text-slate-500">客服</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-0.5 group">
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary transition-colors">favorite</span>
+<span class="text-[10px] text-slate-500">收藏</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-0.5 group">
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary transition-colors">shopping_cart</span>
+<span class="text-[10px] text-slate-500">购物车</span>
+</button>
+</div>
+<div class="flex flex-1 gap-2">
+<button class="flex-1 py-3 px-4 bg-zen-green text-white text-sm font-bold rounded-lg tracking-widest active:scale-95 transition-transform">
+                    加入购物车
+                </button>
+<button class="flex-[1.5] py-3 px-4 bg-primary text-white text-sm font-bold rounded-lg tracking-[0.2em] shadow-lg shadow-primary/20 active:scale-95 transition-transform">
+                    立即购买
+                </button>
+</div>
+</div>
+</footer>
+</body></html>

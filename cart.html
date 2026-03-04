@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&amp;family=Noto+Sans+SC:wght@300;400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b42222",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#201212",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif SC", "serif"],
+                        "sans": ["Noto Sans SC", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        h1, h2, h3, h4, .font-serif {
+            font-family: 'Noto Serif SC', serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col max-w-md mx-auto bg-white dark:bg-background-dark shadow-sm">
+<!-- Top Navigation -->
+<div class="flex items-center bg-white dark:bg-background-dark p-4 pb-2 justify-between sticky top-0 z-10 border-b border-primary/10">
+<div class="text-slate-900 dark:text-slate-100 flex size-12 shrink-0 items-center cursor-pointer">
+<span class="material-symbols-outlined">arrow_back</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-xl font-bold leading-tight tracking-tight flex-1 text-center font-serif">香蓝</h2>
+<div class="flex w-12 items-center justify-end">
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 bg-transparent text-slate-900 dark:text-slate-100 p-0">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+</div>
+<!-- Brand Header -->
+<div class="py-6 px-4 text-center">
+<h4 class="text-primary text-sm font-bold leading-normal tracking-widest uppercase font-serif">南风草木</h4>
+<p class="text-primary/60 text-xs font-light tracking-[0.2em] mt-1 italic">NAN FENG CAO MU</p>
+</div>
+<!-- Cart Items List -->
+<div class="flex flex-col gap-1 px-4">
+<!-- Item 1 -->
+<div class="flex flex-col border-b border-primary/5 py-6">
+<div class="flex items-start gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-24 shrink-0 bg-slate-100" data-alt="Handcrafted traditional stick incense set in wooden box" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBaMKS91Wv0xFNkHD-ZiGr7ByjoCsfNgt5_wmIJaSwoh4OHBoyjQi4pjfHvFxjJI7D0eJu6Jdu8x7XUopY914yh4os8wVFkmJUwgWjQ8PvQINOSgYJxWQjwP4krDA4X6NcF1rbxxZ1YkzfPROYkSwEpJwJi5l6uPTnFXOPnUHh369LKtTG3vtc1AkMbog3F7AaEjOvieBlD7UTqv5g3TXICPU9fmHTtoDAgG7ehfjV2FoDGZfgFvvxnjVNLpFPDpU_G2GY7FFukpsE");'></div>
+<div class="flex flex-col flex-1 justify-between min-h-[96px]">
+<div>
+<div class="flex justify-between items-start">
+<p class="text-slate-900 dark:text-slate-100 text-base font-medium leading-tight font-serif">Heritage Stick Incense Set</p>
+<span class="material-symbols-outlined text-slate-400 text-sm cursor-pointer">close</span>
+</div>
+<div class="flex gap-2 mt-2">
+<span class="px-2 py-0.5 rounded-sm bg-primary/5 text-primary text-[10px] font-medium tracking-wider">ANCIENT RECIPE</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-4">
+<p class="text-primary text-lg font-bold font-serif">¥198</p>
+<div class="flex items-center gap-3 text-slate-900 dark:text-slate-100">
+<button class="text-base flex h-6 w-6 items-center justify-center rounded-full border border-primary/20 hover:bg-primary/5 cursor-pointer">-</button>
+<span class="text-sm font-medium w-4 text-center">1</span>
+<button class="text-base flex h-6 w-6 items-center justify-center rounded-full border border-primary/20 hover:bg-primary/5 cursor-pointer">+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex flex-col border-b border-primary/5 py-6">
+<div class="flex items-start gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-24 shrink-0 bg-slate-100" data-alt="Premium red lacquer bead bracelet handcrafted" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA4ckvJ-PFS1Dl7XLXegKIbCLnfFa-s18aNxfRx22Bs0QYw7BFoo7ku3FgQ6j9GUjW7LEMOFeJBbKv--ZuZ3Lkv03vetZ1HxdsbNaM0zbo6u9x12U4oYTcR97YlqR7KikB3JWpHLnK4gnJV8YyJI2noJS7xFb2Pi78eI_aU3TSInhhYUBuv7apWAgQbk3O3pcrhZtvM1nKRhHtyqbmBRHFNg0h7uPfuRxL2NfUCkUkNLIeJIRBXsuv98oy84x6l5qZH1IO6oVnZXWA");'></div>
+<div class="flex flex-col flex-1 justify-between min-h-[96px]">
+<div>
+<div class="flex justify-between items-start">
+<p class="text-slate-900 dark:text-slate-100 text-base font-medium leading-tight font-serif">Premium Lacquer Bead Bracelet</p>
+<span class="material-symbols-outlined text-slate-400 text-sm cursor-pointer">close</span>
+</div>
+<div class="flex gap-2 mt-2">
+<span class="px-2 py-0.5 rounded-sm bg-primary/5 text-primary text-[10px] font-medium tracking-wider">PURE HANDMADE</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-4">
+<p class="text-primary text-lg font-bold font-serif">¥560</p>
+<div class="flex items-center gap-3 text-slate-900 dark:text-slate-100">
+<button class="text-base flex h-6 w-6 items-center justify-center rounded-full border border-primary/20 hover:bg-primary/5 cursor-pointer">-</button>
+<span class="text-sm font-medium w-4 text-center">1</span>
+<button class="text-base flex h-6 w-6 items-center justify-center rounded-full border border-primary/20 hover:bg-primary/5 cursor-pointer">+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex flex-col border-b border-primary/5 py-6 opacity-80">
+<div class="flex items-start gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-24 shrink-0 bg-slate-100" data-alt="Ceramic incense burner with minimalist design" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCch-Pr_NrarmVoxDFn1LguzFWM9E-Ng677zHnuOaDKFpqKKR5UpGO5y9z63BrSznRxMQsZEWw2jdeb_AJ9MQ_oYWtQ7qRt2XqwAKsSogw1CapjuDhiQSQliYD7eLOxm-iztV_wuz8leewSMOI8obRV8AshS9dng7UdjMA2zZiIhcCp357MkM5iwkXj_nQXl1zCX3FxDAzj93iLLRx2j_ZQKmLWq3ziTOGuyFVz3JUCO5sAcTC_DGjynOizN4vy6ByJQWEx7ig3lYw");'></div>
+<div class="flex flex-col flex-1 justify-between min-h-[96px]">
+<div>
+<div class="flex justify-between items-start">
+<p class="text-slate-900 dark:text-slate-100 text-base font-medium leading-tight font-serif">Celadon Incense Holder</p>
+<span class="material-symbols-outlined text-slate-400 text-sm cursor-pointer">close</span>
+</div>
+<div class="flex gap-2 mt-2">
+<span class="px-2 py-0.5 rounded-sm bg-slate-100 text-slate-500 text-[10px] font-medium tracking-wider">ZEN SERIES</span>
+</div>
+</div>
+<div class="flex items-center justify-between mt-4">
+<p class="text-primary text-lg font-bold font-serif">¥125</p>
+<div class="flex items-center gap-3 text-slate-900 dark:text-slate-100">
+<button class="text-base flex h-6 w-6 items-center justify-center rounded-full border border-primary/20 hover:bg-primary/5 cursor-pointer">-</button>
+<span class="text-sm font-medium w-4 text-center">1</span>
+<button class="text-base flex h-6 w-6 items-center justify-center rounded-full border border-primary/20 hover:bg-primary/5 cursor-pointer">+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recommendations or Spacer -->
+<div class="h-32"></div>
+<!-- Sticky Bottom Bar -->
+<div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-primary/10 px-6 py-6 pb-8">
+<div class="flex items-center justify-between mb-6">
+<div class="flex flex-col">
+<span class="text-slate-400 text-xs font-light tracking-widest">TOTAL AMOUNT</span>
+<p class="text-primary text-2xl font-bold font-serif">¥883.00</p>
+</div>
+<div class="text-right">
+<span class="text-slate-400 text-xs font-light">3 Items Selected</span>
+</div>
+</div>
+<button class="w-full bg-primary hover:bg-primary/90 text-white py-4 rounded-lg font-serif font-bold tracking-widest text-lg transition-colors flex items-center justify-center gap-2">
+                CHECK OUT
+                <span class="material-symbols-outlined text-sm">arrow_forward_ios</span>
+</button>
+</div>
+</div>
+</body></html>

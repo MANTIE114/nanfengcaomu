@@ -1,0 +1,29 @@
+<view class="container h-screen flex">
+  <!-- Left Side Sidebar -->
+  <scroll-view class="sidebar w-1-3 bg-white h-full border-r border-primary-5" scroll-y>
+    <view class="cat-item active">线香</view>
+    <view class="cat-item">香薰</view>
+    <view class="cat-item">香珠香牌</view>
+    <view class="cat-item">大漆珠</view>
+    <view class="cat-item">工艺手串</view>
+  </scroll-view>
+
+  <!-- Right Side Content -->
+  <scroll-view class="content w-2-3 h-full bg-background-light p-4 pb-24" scroll-y>
+    <view class="text-sm text-slate-400 tracking-widest uppercase mb-4">/ Stick Incense</view>
+    
+    <view class="cat-grid gap-4">
+      <view class="item-card bg-white p-4 rounded-xl text-center shadow-sm mb-4">
+        <image class="item-img w-full rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaBP82_28p6mCz0TH1ErNHvcXhm2DvPoiRBfuzteat20yKt6JWrLVqnzYJpy7Xrx_rb9UESvQbvLtrLu-bNI9P7kwOz_hpoNiEZNGE8CSPNH5F_PAiHahrLm-UY0nDihP7gGpcBGV43NdNpwAyOrMwOBiTHUamFx7iQbZsjwPLaDmYjAUpSSRMoAywzvfi1PJearGuk3UT_Y1QEe54U_g9Vn3xcPTHTR0fx8UE4X0z0re4mAfoN6PpfU7T3HHXUhw95loDWwavyx0" mode="aspectFill"></image>
+        <view class="mt-2 text-sm font-bold text-slate-800">传承 · 线香套装</view>
+        <view class="mt-1 text-primary text-xs font-bold">¥368</view>
+      </view>
+      
+      <view class="item-card bg-white p-4 rounded-xl text-center shadow-sm">
+        <image class="item-img w-full rounded-lg bg-slate-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3Quce4Byrq82Wa30RMoSyAZ27TZNtembxKFPWcBev_t5i6LS9eoI1ODhN-jJIiFuqO69MdUF_eeOdrvetmeRcaIl3F4F3NEu2oUCnm2UUhztr_eRMh-urLkVVXTwrR8oIkzt2s7UeO1gruYi9IA3gBPWFsRlskAMmrYm-E7MFZIJoxpy2PzxQ77JvfcMyOepbafPl-oxD2tPe-TQr3ULOvRG89fq-M3GUz6IV_NODsUWpGUxuFSl40xVsSSOunAInD_yrK0UsgDg" mode="aspectFill"></image>
+        <view class="mt-2 text-sm font-bold text-slate-800">禅意 · 卧香盘</view>
+        <view class="mt-1 text-primary text-xs font-bold">¥128</view>
+      </view>
+    </view>
+  </scroll-view>
+</view>

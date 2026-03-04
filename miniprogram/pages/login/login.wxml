@@ -1,0 +1,17 @@
+<!-- miniprogram/pages/login/login.wxml -->
+<view class="login-container">
+  <view class="login-header">
+    <image class="logo" src="/images/home.png" mode="aspectFit"></image>
+    <view class="brand-name">{{appName}}</view>
+    <view class="brand-sub">{{subName}}</view>
+  </view>
+  
+  <view class="login-actions">
+    <button class="btn-login {{isLoading ? 'btn-loading' : ''}}" bindtap="handleLogin">
+      微信一键登录
+    </button>
+    <view class="agreement">
+      登录代表您已同意 <text class="link">《用户服务协议》</text> 与 <text class="link">《隐私政策》</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,114 @@
+/* miniprogram/pages/detail/detail.wxss */
+.page {
+  background-color: #ffffff;
+  color: #1e293b;
+  padding-bottom: 200rpx;
+  font-family: 'Noto Serif SC', serif;
+}
+
+.hero-image { width: 100%; height: 800rpx; background-color: #e7e5e4; }
+.hero-content {
+  margin-top: -60rpx; position: relative; z-index: 10;
+  background-color: #ffffff; padding: 48rpx 40rpx;
+  border-top-left-radius: 40rpx; border-top-right-radius: 40rpx;
+}
+.product-title { font-size: 52rpx; font-weight: bold; color: #0f172a; letter-spacing: -1rpx; }
+.price-row { display: flex; align-items: baseline; gap: 16rpx; margin-top: 16rpx; }
+.price { color: #b42222; font-size: 56rpx; font-weight: bold; }
+.price-origin { color: #94a3b8; text-decoration: line-through; font-size: 28rpx; }
+
+.tags { display: flex; gap: 16rpx; margin-top: 32rpx; }
+.tag { padding: 8rpx 24rpx; font-size: 24rpx; font-weight: 500; border-radius: 8rpx; color: #b42222; background-color: rgba(180, 34, 34, 0.08); border: 1px solid rgba(180, 34, 34, 0.15); }
+.tag.green { color: #2d3e33; background-color: rgba(45, 62, 51, 0.08); border: 1px solid rgba(45, 62, 51, 0.15); }
+
+.divider { height: 16rpx; background-color: #f8fafc; }
+
+.craft-section { padding: 64rpx 40rpx; text-align: center; }
+.craft-title { font-size: 40rpx; font-weight: bold; color: #2d3e33; letter-spacing: 0.2em; margin-bottom: 16rpx; }
+.craft-line { width: 48rpx; height: 4rpx; background-color: #b42222; margin: 0 auto; }
+.craft-sub { color: #64748b; font-size: 20rpx; margin-top: 16rpx; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.craft-grid { display: flex; flex-wrap: wrap; row-gap: 48rpx; margin-top: 48rpx; }
+.craft-item { width: 33.33%; display: flex; flex-direction: column; align-items: center; }
+.craft-icon-box { width: 110rpx; height: 110rpx; border-radius: 50%; background-color: #f5f5f4; margin-bottom: 16rpx; display: flex; justify-content: center; align-items: center; }
+.craft-icon { width: 48rpx; height: 48rpx; }
+.craft-item-title { font-weight: bold; font-size: 28rpx; color: #334155; }
+.craft-item-sub { font-size: 20rpx; color: #94a3b8; margin-top: 8rpx; }
+
+.spec-section { padding: 64rpx 40rpx; }
+.spec-header { font-size: 36rpx; font-weight: bold; border-left: 8rpx solid #b42222; padding-left: 20rpx; margin-bottom: 48rpx; color: #1e293b; }
+.spec-row { display: flex; justify-content: space-between; padding: 24rpx 0; border-bottom: 1px solid rgba(180, 34, 34, 0.05); }
+.spec-key { color: #64748b; font-size: 28rpx; font-weight: 300; }
+.spec-value { color: #1e293b; font-size: 28rpx; }
+
+.image-list { padding: 16rpx 32rpx; }
+.detail-pic { width: 100%; border-radius: 16rpx; margin-bottom: 32rpx; border: 1px solid rgba(180, 34, 34, 0.1); box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.03); }
+
+/* Completely Bulletproof Footer Layout */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  border-top: 1px solid rgba(180, 34, 34, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 32rpx calc(20rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -8rpx 40rpx rgba(0,0,0,0.05);
+  z-index: 9999;
+}
+
+.action-icons { 
+  display: flex; 
+  gap: 32rpx; 
+  flex-shrink: 0;
+  width: 200rpx;
+}
+.action-item {
+  display: flex !important;
+  flex-direction: column !important; 
+  align-items: center !important;
+  background: transparent !important; 
+  padding: 0 !important; 
+  margin: 0 !important;
+  line-height: inherit !important; 
+  border-radius: 0 !important;
+  width: 80rpx !important;
+}
+.action-item::after { display: none !important; }
+.action-img { width: 44rpx; height: 44rpx; opacity: 0.6; }
+.action-text { font-size: 20rpx; color: #64748b; margin-top: 4rpx; }
+
+/* Fixed pixel-width container */
+.action-btns {
+  display: flex;
+  width: 450rpx;
+  height: 88rpx;
+  flex-shrink: 0;
+}
+.btn-cart {
+  width: 50%;
+  height: 88rpx;
+  background-color: #2d3e33;
+  color: #ffffff;
+  font-size: 26rpx;
+  font-weight: bold;
+  line-height: 88rpx;
+  text-align: center;
+  border-radius: 44rpx 0 0 44rpx;
+}
+.btn-buy {
+  width: 50%;
+  height: 88rpx;
+  background-color: #b42222;
+  color: #ffffff;
+  font-size: 26rpx;
+  font-weight: bold;
+  line-height: 88rpx;
+  text-align: center;
+  border-radius: 0 44rpx 44rpx 0;
+  box-shadow: 0 8rpx 20rpx rgba(180, 34, 34, 0.2);
+}

@@ -1,0 +1,82 @@
+<view class="container pb-24 bg-background-light min-h-screen">
+  <!-- Header -->
+  <view class="header relative pt-20 pb-8 px-6 overflow-hidden bg-white shadow-sm">
+    <view class="absolute top-0 right-0 w-32 h-32 bg-primary-5 rounded-full -mr-16 -mt-16 blur-xl"></view>
+    <view class="absolute top-20 left-0 w-24 h-24 bg-primary-10 rounded-full -ml-12 blur-xl"></view>
+    
+    <view class="relative flex-col items-center flex">
+      <view class="avatar-wrap mb-4 border-2 border-primary-20 p-1 rounded-full w-24 h-24">
+        <image class="avatar rounded-full w-full h-full" src="{{userInfo.avatar || 'https://lh3.googleusercontent.com/aida-public/AB6AXuBcL8vgwMXa0mmKlwnanxzZYyaGhuPIdOsavdFxyIXAiLHo_RmpsFXJO3Xh9PtkYnb7YYhV3T9SGe4JjV9zIZt5E0aYUJe4_25NzeP03_Xhk1rfHGdT59wICyWeMRSZ_xl_ahVPXqyFVL0MLdSzLCg_qlYeDY3Lg1QYxvbNW_vhcO_S7s7hOB3BMe1oYrb0Jgzym1eUiwbqvX9A-cxpwZeekAwTFUrNzT65-7GzTdr5Y9CySGA8BcWs8P1D_-ZcaNMjj6jcvg8WwWA'}}" mode="aspectFill"></image>
+      </view>
+      
+      <view class="text-xl font-bold text-slate-900 mb-1">{{userInfo.nickname || '南风访客'}}</view>
+      <view class="text-sm text-slate-500 italic">“静心采撷，草木芬芳”</view>
+      
+      <view class="stats flex gap-8 mt-6">
+        <view class="text-center">
+          <view class="text-lg font-bold text-slate-900">{{stats.collects}}</view>
+          <view class="text-[20rpx] text-slate-500 mt-1 uppercase tracking-widest">收藏</view>
+        </view>
+        <view class="divider"></view>
+        <view class="text-center">
+          <view class="text-lg font-bold text-slate-900">{{stats.footprints}}</view>
+          <view class="text-[20rpx] text-slate-500 mt-1 uppercase tracking-widest">足迹</view>
+        </view>
+        <view class="divider"></view>
+        <view class="text-center">
+          <view class="text-lg font-bold text-slate-900">{{userInfo.points || 0}}</view>
+          <view class="text-[20rpx] text-slate-500 mt-1 uppercase tracking-widest">积分</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Main Content -->
+  <view class="px-4 mt-6 space-y-6">
+    <!-- Orders Section -->
+    <view class="bg-white rounded-xl p-4 shadow-sm mb-6">
+      <view class="flex justify-between items-center mb-6 pb-4 border-b border-primary-5">
+        <view class="text-base font-bold text-slate-800">我的订单</view>
+        <view class="text-xs text-slate-400">全部订单 ></view>
+      </view>
+      <view class="flex justify-between text-center px-2">
+        <view class="flex-col items-center">
+          <view class="w-10 h-10 rounded-lg bg-primary-5 flex items-center justify-center text-primary mx-auto mb-2 text-sm font-bold">待付款</view>
+        </view>
+        <view class="flex-col items-center">
+          <view class="w-10 h-10 rounded-lg bg-primary-5 flex items-center justify-center text-primary mx-auto mb-2 text-sm font-bold">待发货</view>
+        </view>
+        <view class="flex-col items-center">
+          <view class="w-10 h-10 rounded-lg bg-primary-5 flex items-center justify-center text-primary mx-auto mb-2 text-sm font-bold">待收货</view>
+        </view>
+        <view class="flex-col items-center">
+          <view class="w-10 h-10 rounded-lg bg-primary-5 flex items-center justify-center text-primary mx-auto mb-2 text-sm font-bold">退换货</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Menu Section -->
+    <view class="bg-white rounded-xl overflow-hidden shadow-sm">
+      <view class="flex items-center justify-between p-4 border-b border-slate-50">
+        <view class="text-sm font-medium text-slate-700">我的收藏</view>
+        <view class="text-slate-300">></view>
+      </view>
+      <view class="flex items-center justify-between p-4 border-b border-slate-50">
+        <view class="text-sm font-medium text-slate-700">收货地址</view>
+        <view class="text-slate-300">></view>
+      </view>
+      <view class="flex items-center justify-between p-4 border-b border-slate-50">
+        <view class="text-sm font-medium text-slate-700">在线客服</view>
+        <view class="text-slate-300">></view>
+      </view>
+      <view class="flex items-center justify-between p-4">
+        <view class="text-sm font-medium text-slate-700">关于我们</view>
+        <view class="text-slate-300">></view>
+      </view>
+    </view>
+    
+    <view class="py-8 text-center text-slate-300 text-[20rpx] tracking-widest mt-4">
+      Nan Feng Cao Mu · Modern Zen Lifestyle
+    </view>
+  </view>
+</view>

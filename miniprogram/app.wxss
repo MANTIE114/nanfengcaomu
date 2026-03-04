@@ -1,0 +1,31 @@
+page {
+  font-family: 'Noto Serif', 'Noto Serif SC', serif;
+  background-color: #f8f6f6;
+  color: #0f172a;
+  box-sizing: border-box;
+}
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.justify-between { justify-content: space-between; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.mt-4 { margin-top: 32rpx; }
+.mt-2 { margin-top: 16rpx; }
+.mb-2 { margin-bottom: 16rpx; }
+.mb-4 { margin-bottom: 32rpx; }
+.mb-6 { margin-bottom: 48rpx; }
+.mb-8 { margin-bottom: 64rpx; }
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.font-bold { font-weight: bold; }
+.text-xs { font-size: 24rpx; }
+.text-sm { font-size: 28rpx; }
+.text-base { font-size: 32rpx; }
+.text-lg { font-size: 36rpx; }
+.text-xl { font-size: 40rpx; }
+.text-2xl { font-size: 48rpx; }
+.text-3xl { font-size: 60rpx; }
+.text-primary { color: #b42222; }
+.bg-primary { background-color: #b42222; }
+.text-white { color: #ffffff; }
+.tracking-widest { letter-spacing: 0.1em; }

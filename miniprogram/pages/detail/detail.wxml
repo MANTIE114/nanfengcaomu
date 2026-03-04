@@ -1,0 +1,123 @@
+<!-- miniprogram/pages/detail/detail.wxml -->
+<view class="page">
+  <view class="relative">
+    <image class="hero-image" src="{{product.cover_image || 'https://lh3.googleusercontent.com/aida-public/AB6AXuAy67usGIXeM1VdJs_veWT5BAsL59pz95aYESrUj84Rb6e4SaTwfEsCrSYJ39Efd6rHhGCpBl593rqLLF-fXExQYKmoiffL1UycA_DypclCx-_uZ5lyxvDvMYeMxNjis_oJK4DPUnWy9y1dg_dAsYv0pW_MP9517RvnybshBJoNR4nWwE0klPUK8klc3YiYgS3i6lkOpprtRcfM6b2DSi_sWltCsTuRrpKHySkU1-kCdX6qOXese0IEC1Jh6x3X0rHn4Aci6gj-UCM'}}" mode="aspectFill"></image>
+    
+    <view class="hero-content">
+      <view class="product-title">{{product.name || '传承·云起线香'}}</view>
+      
+      <view class="price-row">
+        <text class="price">¥{{product.price || '298'}}</text>
+        <text class="price-origin">¥{{product.price ? product.price * 1.5 : '450'}}</text>
+      </view>
+
+      <view class="tags">
+        <text class="tag">纯手工</text>
+        <text class="tag green">古法研制</text>
+        <text class="tag">天然原材</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="divider"></view>
+
+  <view class="craft-section">
+    <view class="craft-title">匠心古法 · 制香六艺</view>
+    <view class="craft-line"></view>
+    <view class="craft-sub">Ancient Wisdom in Every Wisp</view>
+
+    <view class="craft-grid">
+      <view class="craft-item">
+        <view class="craft-icon-box">
+          <image class="craft-icon" src="https://img.icons8.com/ios/50/b42222/leaf.png"></image>
+        </view>
+        <text class="craft-item-title">选材</text>
+        <text class="craft-item-sub">严选百年老料</text>
+      </view>
+      <view class="craft-item">
+        <view class="craft-icon-box">
+          <image class="craft-icon" src="https://img.icons8.com/ios/50/b42222/powder.png"></image>
+        </view>
+        <text class="craft-item-title">研磨</text>
+        <text class="craft-item-sub">细如罗面之粉</text>
+      </view>
+      <view class="craft-item">
+        <view class="craft-icon-box">
+          <image class="craft-icon" src="https://img.icons8.com/ios/50/b42222/water-element.png"></image>
+        </view>
+        <text class="craft-item-title">炮制</text>
+        <text class="craft-item-sub">去燥存性温润</text>
+      </view>
+      <view class="craft-item">
+        <view class="craft-icon-box">
+          <image class="craft-icon" src="https://img.icons8.com/ios/50/b42222/mixer.png"></image>
+        </view>
+        <text class="craft-item-title">合香</text>
+        <text class="craft-item-sub">众香调和共鸣</text>
+      </view>
+      <view class="craft-item">
+        <view class="craft-icon-box">
+          <image class="craft-icon" src="https://img.icons8.com/ios/50/b42222/pottery.png"></image>
+        </view>
+        <text class="craft-item-title">成型</text>
+        <text class="craft-item-sub">手工挤压入形</text>
+      </view>
+      <view class="craft-item">
+        <view class="craft-icon-box">
+          <image class="craft-icon" src="https://img.icons8.com/ios/50/b42222/sun--v1.png"></image>
+        </view>
+        <text class="craft-item-title">晾晒</text>
+        <text class="craft-item-sub">自然阴干纳气</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="divider"></view>
+
+  <view class="spec-section">
+    <view class="spec-header">产品规格</view>
+    <view class="spec-row">
+      <text class="spec-key">净重 / Weight</text>
+      <text class="spec-value">20g (约40-45支)</text>
+    </view>
+    <view class="spec-row">
+      <text class="spec-key">长度 / Length</text>
+      <text class="spec-value">21cm</text>
+    </view>
+    <view class="spec-row">
+      <text class="spec-key">燃时 / Burning Time</text>
+      <text class="spec-value">约45分钟</text>
+    </view>
+    <view class="spec-row">
+      <text class="spec-key">成分 / Ingredients</text>
+      <text class="spec-value">澳洲老山檀、降真香、天然楠木皮</text>
+    </view>
+    <view class="spec-row">
+      <text class="spec-key">储存 / Storage</text>
+      <text class="spec-value">避光、防潮、置于阴凉干燥处</text>
+    </view>
+  </view>
+
+  <view class="image-list">
+    <image class="detail-pic" mode="widthFix" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtD2_xyiuXxBvHo1ZXdRbAYS772U8EoNjievY24A-Rp6k4fhE2FqM5X9DrXvCD-28V_eS19o2vj5tmV7hN-fNYtEJUSRKwUxl6qQYqND-5KlEt1XVmQ8t1a2f-XT9wBYRsPbNQZesn2KG1Ts9FsvQwL3Qsn_qJbkMNvxVLM9-87t1LXfuokKo2G9gPA8iePDT4pc_Iftf7oO3BqFHYr9j3l5QfheM0P-AUjxGhZvH7KK4ZLiUS0Qtz1RUR2DPYFdggXuS98erbCW0"></image>
+    <image class="detail-pic" mode="widthFix" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAq6AgGggF40CbcvleSUCwFTA1BrzlWHxbrgElEBJHZWNhwgTKAPcEEnZZh8UOYJTVZHOvYSwtSe5ZoZZcqPb0JCpzHCR7zsb2lngnVFAqZkQhqduOBybJTBjCdn5HbfDKFviVk6L2PFRB1rIiQxVFNJYm0BkxUeO0he2Lg26g9jVHyTp9t7DNuR6Uh1iA3QLRO-hBsihYZZ85bzqVlr-uw1BkO1BMvbhlb6Ge8vLj7Q8OAmZxJaXIkiuY7Axf_ivXBr3TVaZU8tpw"></image>
+  </view>
+</view>
+
+<!-- Floating Footer Bar -->
+<view class="footer">
+  <view class="action-icons">
+    <button class="action-item" open-type="contact">
+      <image class="action-img" src="https://img.icons8.com/ios/50/64748b/headset.png"></image>
+      <text class="action-text">客服</text>
+    </button>
+    <button class="action-item" bindtap="switchTab" data-url="/pages/cart/cart">
+      <image class="action-img" src="https://img.icons8.com/ios/50/64748b/shopping-cart.png"></image>
+      <text class="action-text">购物车</text>
+    </button>
+  </view>
+  <view class="action-btns">
+    <view class="btn-cart" bindtap="addToCart">加入购物车</view>
+    <view class="btn-buy" bindtap="buyNow">立即购买</view>
+  </view>
+</view>
