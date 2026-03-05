@@ -74,6 +74,7 @@
           <!-- 已完成 -->
           <block wx:if="{{item.status === 3}}">
             <button class="action-btn btn-outline" catchtap="rebuy" data-id="{{item.id}}">再次请香</button>
+            <!-- <button wx:if="{{!item.is_reviewed}}" class="action-btn btn-primary" catchtap="openReviewModal" data-id="{{item.id}}">评价</button> -->
           </block>
           <!-- 售后中 / 已退款 -->
           <block wx:if="{{item.status === 4 || item.status === 5}}">
@@ -93,5 +94,20 @@
 
     <view class="list-end">End of List · 别有洞天</view>
   </scroll-view>
+
+  <!-- 评价弹窗 -->
+  <view class="modal-mask" wx:if="{{showReviewModal}}" bindtap="closeReviewModal">
+    <view class="modal-content" catchtap="preventDumb">
+      <view class="modal-title">写下您的品香感悟</view>
+      <view class="stars-box">
+        <view class="star {{rating >= item ? 'star-active' : ''}}" wx:for="{{[1,2,3,4,5]}}" wx:key="*this" bindtap="setRating" data-val="{{item}}">★</view>
+      </view>
+      <textarea class="review-input" placeholder="产品满足您的期待吗？分享您的体验..." bindinput="onReviewInput" value="{{reviewContent}}"></textarea>
+      <view class="modal-actions">
+        <button class="modal-btn cancel" bindtap="closeReviewModal">取消</button>
+        <button class="modal-btn submit" bindtap="submitReview">提交评价</button>
+      </view>
+    </view>
+  </view>
 
 </view>

@@ -19,7 +19,11 @@ Page({
         page: 1,
         pageSize: 5,
         hasMore: true,
-        isLoading: true
+        isLoading: true,
+        showReviewModal: false,
+        reviewOrderId: null,
+        rating: 5,
+        reviewContent: ''
     },
 
     onLoad(options) {
@@ -128,7 +132,8 @@ Page({
                 previewItems: preview, // The only place where imgUrl stays
                 itemCount: order.total_quantity || 1,
                 firstName: order.first_product_name || '手工雅香',
-                firstSpec: order.first_product_spec || '古法手作'
+                firstSpec: order.first_product_spec || '古法手作',
+                is_reviewed: order.is_reviewed || 0
             };
         });
     },
@@ -269,5 +274,53 @@ Page({
 
     rebuy(e) {
         wx.showToast({ title: '已加入香蓝', icon: 'success' });
+    },
+
+    // --- Review Handlers ---
+    openReviewModal(e) {
+        this.setData({
+            showReviewModal: true,
+            reviewOrderId: e.currentTarget.dataset.id,
+            rating: 5,
+            reviewContent: ''
+        });
+    },
+
+    closeReviewModal() {
+        this.setData({ showReviewModal: false, reviewOrderId: null });
+    },
+
+    preventDumb() {
+        // Prevent event bubbling so clicking inner content won't close modal
+    },
+
+    setRating(e) {
+        this.setData({ rating: e.currentTarget.dataset.val });
+    },
+
+    onReviewInput(e) {
+        this.setData({ reviewContent: e.detail.value });
+    },
+
+    submitReview() {
+        const { reviewOrderId, rating, reviewContent } = this.data;
+        if (!reviewContent.trim()) {
+            return wx.showToast({ title: '评论内容不能为空', icon: 'none' });
+        }
+
+        wx.showLoading({ title: '提交中...' });
+        api.submitReview(reviewOrderId, { rating, content: reviewContent }).then(res => {
+            wx.hideLoading();
+            if (res.success) {
+                wx.showToast({ title: '评价成功', icon: 'success' });
+                this.closeReviewModal();
+                this.fetchOrders(true); // reload to hit the server and update is_reviewed
+            } else {
+                wx.showToast({ title: res.message || '评价失败', icon: 'none' });
+            }
+        }).catch(err => {
+            wx.hideLoading();
+            wx.showToast({ title: '评价失败', icon: 'none' });
+        });
     }
 });

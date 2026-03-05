@@ -3,12 +3,14 @@ const api = require('../../api.js');
 Page({
     data: {
         product: {},
-        isFavorited: false
+        isFavorited: false,
+        reviews: []
     },
     onLoad(options) {
         if (options.id) {
             this.fetchDetail(options.id);
             this.fetchFavoriteStatus(options.id);
+            this.fetchReviews(options.id);
         }
     },
     fetchDetail(id) {
@@ -25,6 +27,18 @@ Page({
         api.getFavoriteStatus(id).then(res => {
             this.setData({ isFavorited: res.isFavorited });
         });
+    },
+    fetchReviews(id) {
+        api.getProductReviews(id).then(res => {
+            if (res.success && res.data) {
+                // Parse date for display
+                const reviews = res.data.map(r => ({
+                    ...r,
+                    displayTime: (r.create_time || '').split(' ')[0]
+                }));
+                this.setData({ reviews });
+            }
+        }).catch(console.error);
     },
     toggleFavorite() {
         if (!this.data.product.id) return;

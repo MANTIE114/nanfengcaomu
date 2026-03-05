@@ -231,6 +231,26 @@ app.get('/api/products', (req, res) => {
     });
 });
 
+app.get('/api/products/:id/reviews', (req, res) => {
+    const productId = req.params.id;
+    const sql = `
+        SELECT r.*, u.nickname, u.avatar 
+        FROM reviews r 
+        JOIN users u ON r.user_id = u.id 
+        WHERE r.product_id = ? 
+        ORDER BY r.create_time DESC
+    `;
+    db.all(sql, [productId], (err, rows) => {
+        if (err) return res.status(500).json({ success: false, message: err.message });
+        const domain = req.headers.host.includes('localhost') ? `http://${req.headers.host}` : `https://${req.headers.host}`;
+        const enriched = (rows || []).map(r => ({
+            ...r,
+            avatar: r.avatar && r.avatar.startsWith('/') ? domain + r.avatar : r.avatar
+        }));
+        res.json({ success: true, data: enriched });
+    });
+});
+
 app.get('/api/products/:id', (req, res) => {
     const { id } = req.params;
     db.get("SELECT * FROM products WHERE id = ?", [id], (err, row) => {
@@ -275,7 +295,7 @@ app.get('/api/cart', (req, res) => {
     FROM cart c 
     JOIN products p ON c.product_id = p.id 
     WHERE c.user_id = ?
-  `, [userId], (err, rows) => {
+            `, [userId], (err, rows) => {
         res.json({ success: true, data: rows });
     });
 });
@@ -340,15 +360,15 @@ app.get('/api/orders', (req, res) => {
     const offset = (page - 1) * pageSize;
 
     const sql = `
-        SELECT o.*, 
+        SELECT o.*,
             (SELECT p.cover_image FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = o.id LIMIT 1) as cover_image,
-            (SELECT p.name FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = o.id LIMIT 1) as first_product_name,
-            (SELECT p.subtitle FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = o.id LIMIT 1) as first_product_spec,
-            (SELECT SUM(oi.quantity) FROM order_items oi WHERE oi.order_id = o.id) as total_quantity
+        (SELECT p.name FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = o.id LIMIT 1) as first_product_name,
+    (SELECT p.subtitle FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = o.id LIMIT 1) as first_product_spec,
+        (SELECT SUM(oi.quantity) FROM order_items oi WHERE oi.order_id = o.id) as total_quantity
         FROM orders o
         WHERE user_id = ? AND is_user_deleted = 0
         ORDER BY create_time DESC
-        LIMIT ? OFFSET ?
+LIMIT ? OFFSET ?
     `;
     db.all(sql, [userId, pageSize, offset], (err, rows) => {
         if (err) return res.status(500).json({ success: false, message: err.message });
@@ -377,8 +397,8 @@ app.get('/api/orders/:id', (req, res) => {
     const userId = req.headers['x-user-id'] || 1;
     const orderId = req.params.id;
     const sql = `
-        SELECT o.*, 
-               a.recipient, a.phone as address_phone, a.province, a.city, a.district, a.detail as address_detail
+        SELECT o.*,
+    a.recipient, a.phone as address_phone, a.province, a.city, a.district, a.detail as address_detail
         FROM orders o
         LEFT JOIN addresses a ON o.address_id = a.id
         WHERE o.id = ? AND o.user_id = ?
@@ -390,7 +410,7 @@ app.get('/api/orders/:id', (req, res) => {
             FROM order_items oi 
             JOIN products p ON oi.product_id = p.id 
             WHERE oi.order_id = ?
-        `, [orderId], (err, items) => {
+    `, [orderId], (err, items) => {
             order.items = items;
             res.json({ success: true, data: order });
         });
@@ -425,6 +445,29 @@ app.post('/api/orders/:id/cancel', (req, res) => {
     db.run("UPDATE orders SET status = -1 WHERE id = ? AND user_id = ?", [orderId, userId], function (err) {
         if (err) return res.json({ success: false, message: '取消订单失败' });
         res.json({ success: true, message: '订单已取消' });
+    });
+});
+
+app.post('/api/orders/:id/review', (req, res) => {
+    const userId = req.headers['x-user-id'] || 1;
+    const orderId = req.params.id;
+    const { rating = 5, content = '这款产品非常好，很满意！' } = req.body;
+
+    db.get("SELECT * FROM orders WHERE id = ? AND user_id = ? AND status = 3 AND is_reviewed = 0", [orderId, userId], (err, order) => {
+        if (!order) return res.json({ success: false, message: '无法评价：订单状态异常或已评价' });
+
+        db.all("SELECT product_id FROM order_items WHERE order_id = ?", [orderId], (err, items) => {
+            if (err || !items.length) return res.json({ success: false, message: '订单内无商品' });
+
+            db.serialize(() => {
+                const stmt = db.prepare("INSERT INTO reviews (user_id, order_id, product_id, rating, content) VALUES (?, ?, ?, ?, ?)");
+                items.forEach(item => stmt.run(userId, orderId, item.product_id, rating, content));
+                stmt.finalize();
+
+                db.run("UPDATE orders SET is_reviewed = 1 WHERE id = ?", [orderId]);
+                res.json({ success: true, message: '评价成功' });
+            });
+        });
     });
 });
 
@@ -511,7 +554,7 @@ app.post('/api/addresses', (req, res) => {
     const isDef = is_default ? 1 : 0;
     const insertFn = () => {
         db.run(
-            `INSERT INTO addresses (user_id, recipient, phone, province, city, district, detail, is_default) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO addresses(user_id, recipient, phone, province, city, district, detail, is_default) VALUES(?, ?, ?, ?, ?, ?, ?, ?)`,
             [userId, recipient, phone, province || '', city || '', district || '', detail, isDef],
             function (err) { res.json({ success: true, id: this.lastID }); }
         );
@@ -526,7 +569,7 @@ app.put('/api/addresses/:id', (req, res) => {
     const isDef = is_default ? 1 : 0;
     const updateFn = () => {
         db.run(
-            `UPDATE addresses SET recipient=?, phone=?, province=?, city=?, district=?, detail=?, is_default=? WHERE id=? AND user_id=?`,
+            `UPDATE addresses SET recipient =?, phone =?, province =?, city =?, district =?, detail =?, is_default =? WHERE id =? AND user_id =? `,
             [recipient, phone, province || '', city || '', district || '', detail, isDef, id, userId],
             function (err) { res.json({ success: true }); }
         );
@@ -556,17 +599,17 @@ app.get('/api/admin/orders', (req, res) => {
     const { keyword } = req.query;
     let sql = `
         SELECT o.*, u.nickname, a.recipient, a.phone as recipient_phone,
-            (SELECT p.name FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = o.id LIMIT 1) as main_product_name,
-            (SELECT p.cover_image FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = o.id LIMIT 1) as main_product_image
+    (SELECT p.name FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = o.id LIMIT 1) as main_product_name,
+        (SELECT p.cover_image FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = o.id LIMIT 1) as main_product_image
         FROM orders o 
         JOIN users u ON o.user_id = u.id 
         LEFT JOIN addresses a ON o.address_id = a.id
-        WHERE 1=1
+        WHERE 1 = 1
     `;
     let params = [];
     if (keyword) {
-        sql += ` AND (o.order_no LIKE ? OR u.nickname LIKE ? OR a.recipient LIKE ? OR a.phone LIKE ? OR o.tracking_no LIKE ?)`;
-        const p = `%${keyword}%`;
+        sql += ` AND(o.order_no LIKE ? OR u.nickname LIKE ? OR a.recipient LIKE ? OR a.phone LIKE ? OR o.tracking_no LIKE ?)`;
+        const p = `% ${keyword}% `;
         params.push(p, p, p, p, p);
     }
     sql += ` ORDER BY o.create_time DESC`;
@@ -580,9 +623,9 @@ app.get('/api/admin/orders', (req, res) => {
 app.get('/api/admin/orders/:id', (req, res) => {
     const orderId = req.params.id;
     const sql = `
-        SELECT o.*, u.nickname, 
-               a.recipient, a.phone, a.province, a.city, a.district, a.detail as address_detail,
-               r.reason as refund_reason, r.type as refund_type, r.refund_amount, r.refund_no, r.status as refund_status, r.create_time as refund_time
+        SELECT o.*, u.nickname,
+    a.recipient, a.phone, a.province, a.city, a.district, a.detail as address_detail,
+    r.reason as refund_reason, r.type as refund_type, r.refund_amount, r.refund_no, r.status as refund_status, r.create_time as refund_time
         FROM orders o 
         JOIN users u ON o.user_id = u.id 
         LEFT JOIN addresses a ON o.address_id = a.id 
@@ -638,7 +681,7 @@ app.get('/api/admin/stats', (req, res) => {
         done++;
         if (done === 4) res.json({ success: true, data: results });
     };
-    db.get(`SELECT COALESCE(SUM(total_amount), 0) as todaySales FROM orders WHERE status >= 1 AND date(create_time) = ?`, [today], (err, row) => {
+    db.get(`SELECT COALESCE(SUM(total_amount), 0) as todaySales FROM orders WHERE status >= 1 AND date(create_time) = ? `, [today], (err, row) => {
         results.todaySales = row ? row.todaySales : 0; finish();
     });
     db.get(`SELECT COUNT(*) as totalOrders FROM orders`, (err, row) => {

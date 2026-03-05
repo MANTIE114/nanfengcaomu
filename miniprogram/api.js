@@ -93,5 +93,7 @@ module.exports = {
     withdrawRefund: (orderId) => request(`/refunds/${orderId}`, 'DELETE'),
     confirmReceipt: (id) => request(`/orders/${id}/confirm`, 'POST'),
     cancelOrder: (id) => request(`/orders/${id}/cancel`, 'POST'),
-    deleteOrderFromUserView: (id) => request(`/orders/${id}/user-delete`, 'POST')
+    deleteOrderFromUserView: (id) => request(`/orders/${id}/user-delete`, 'POST'),
+    getProductReviews: (id) => request(`/products/${id}/reviews`),
+    submitReview: (id, data) => request(`/orders/${id}/review`, 'POST', data)
 };

@@ -61,8 +61,10 @@ db.serialize(() => {
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     pay_time DATETIME,
     ship_time DATETIME,
-    is_user_deleted INTEGER DEFAULT 0
+    is_user_deleted INTEGER DEFAULT 0,
+    is_reviewed INTEGER DEFAULT 0
   )`);
+  db.run("ALTER TABLE orders ADD COLUMN is_reviewed INTEGER DEFAULT 0", (err) => { if (err) console.log('is_reviewed column exists'); });
 
   db.run(`CREATE TABLE IF NOT EXISTS order_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -113,6 +115,16 @@ db.serialize(() => {
     product_id INTEGER NOT NULL,
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, product_id)
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS reviews (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    order_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    rating INTEGER DEFAULT 5,
+    content TEXT,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
 
   // Init Data (Categories)

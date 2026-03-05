@@ -99,6 +99,35 @@
     </view>
   </view>
 
+  <view class="divider"></view>
+
+  <!-- 品香感悟 (Reviews) -->
+  <view class="reviews-section" wx:if="{{reviews && reviews.length > 0}}">
+    <view class="reviews-header">
+      <view class="reviews-title">品香感悟</view>
+      <view class="reviews-count">共 {{reviews.length}} 条体验</view>
+    </view>
+    <view class="review-list">
+      <view class="review-item" wx:for="{{reviews}}" wx:key="id">
+        <view class="review-top">
+          <image class="review-avatar" src="{{item.avatar || 'https://img.icons8.com/ios-filled/50/cbd5e1/user-male-circle.png'}}" mode="aspectFill"></image>
+          <view class="review-user-info">
+            <view class="review-name">{{item.nickname}}</view>
+            <view class="review-date">{{item.displayTime}}</view>
+          </view>
+          <view class="review-rating">
+            <text class="rating-star {{item.rating >= 1 ? 'active' : ''}}">★</text>
+            <text class="rating-star {{item.rating >= 2 ? 'active' : ''}}">★</text>
+            <text class="rating-star {{item.rating >= 3 ? 'active' : ''}}">★</text>
+            <text class="rating-star {{item.rating >= 4 ? 'active' : ''}}">★</text>
+            <text class="rating-star {{item.rating >= 5 ? 'active' : ''}}">★</text>
+          </view>
+        </view>
+        <view class="review-content">{{item.content}}</view>
+      </view>
+    </view>
+  </view>
+
   <view class="image-list">
     <image class="detail-pic" mode="widthFix" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtD2_xyiuXxBvHo1ZXdRbAYS772U8EoNjievY24A-Rp6k4fhE2FqM5X9DrXvCD-28V_eS19o2vj5tmV7hN-fNYtEJUSRKwUxl6qQYqND-5KlEt1XVmQ8t1a2f-XT9wBYRsPbNQZesn2KG1Ts9FsvQwL3Qsn_qJbkMNvxVLM9-87t1LXfuokKo2G9gPA8iePDT4pc_Iftf7oO3BqFHYr9j3l5QfheM0P-AUjxGhZvH7KK4ZLiUS0Qtz1RUR2DPYFdggXuS98erbCW0"></image>
     <image class="detail-pic" mode="widthFix" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAq6AgGggF40CbcvleSUCwFTA1BrzlWHxbrgElEBJHZWNhwgTKAPcEEnZZh8UOYJTVZHOvYSwtSe5ZoZZcqPb0JCpzHCR7zsb2lngnVFAqZkQhqduOBybJTBjCdn5HbfDKFviVk6L2PFRB1rIiQxVFNJYm0BkxUeO0he2Lg26g9jVHyTp9t7DNuR6Uh1iA3QLRO-hBsihYZZ85bzqVlr-uw1BkO1BMvbhlb6Ge8vLj7Q8OAmZxJaXIkiuY7Axf_ivXBr3TVaZU8tpw"></image>
