@@ -13,6 +13,7 @@
 .mb-4 { margin-bottom: 32rpx; }
 .p-4 { padding: 32rpx; }
 .py-8 { padding-top: 64rpx; padding-bottom: 64rpx; }
+.p-6 { padding: 48rpx; }
 
 .relative { position: relative; }
 .absolute { position: absolute; }
@@ -26,6 +27,13 @@
 .left-0 { left: 0; }
 .w-24 { width: 192rpx; }
 .h-24 { height: 192rpx; }
+.w-3 { width: 24rpx; }
+.h-3 { height: 24rpx; }
+.ml-2 { margin-left: 16rpx; }
+.mb-1 { margin-bottom: 8rpx; }
+.flex-col { flex-direction: column; }
+.justify-center { justify-content: center; }
+.active-opacity:active { opacity: 0.7; }
 .-ml-12 { margin-left: -96rpx; }
 .blur-xl { filter: blur(48rpx); }
 
@@ -108,4 +116,35 @@
   align-items: center;
   justify-content: center;
   border: 4rpx solid #fff;
+}
+
+.collection-row:active {
+  opacity: 0.7;
+}
+
+.bg-primary-10 {
+  background-color: rgba(180, 34, 34, 0.08);
+}
+
+.text-primary {
+  color: #b42222;
+}
+
+.gap-3 {
+  gap: 24rpx;
+}
+.text-mini {
+  font-size: 20rpx;
+}
+
+/* Reset default button styles for Contact button */
+.contact-btn {
+  background-color: transparent !important;
+  margin: 0 !important;
+  line-height: inherit !important;
+  border-radius: 0 !important;
+  width: 100% !important;
+}
+.contact-btn::after {
+  display: none !important;
 }

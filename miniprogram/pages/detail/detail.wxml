@@ -112,6 +112,10 @@
       <image class="action-img" src="https://img.icons8.com/ios/50/64748b/headset.png"></image>
       <text class="action-text">客服</text>
     </button>
+    <button class="action-item" bindtap="toggleFavorite">
+      <image class="action-img" src="{{isFavorited ? 'https://img.icons8.com/ios-filled/50/b42222/like--v1.png' : 'https://img.icons8.com/ios/50/64748b/like--v1.png'}}"></image>
+      <text class="action-text {{isFavorited ? 'text-primary' : ''}}">收藏</text>
+    </button>
     <button class="action-item" bindtap="switchTab" data-url="/pages/cart/cart">
       <image class="action-img" src="https://img.icons8.com/ios/50/64748b/shopping-cart.png"></image>
       <text class="action-text">购物车</text>

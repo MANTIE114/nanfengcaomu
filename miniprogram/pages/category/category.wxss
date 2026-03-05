@@ -1,6 +1,30 @@
 @import '../../app.wxss';
 
-.h-screen { height: 100vh; display: flex; }
+.h-screen { height: 100vh; display: flex; overflow: hidden; }
+.flex-col { flex-direction: column; }
+.flex-1 { flex-one: 1; flex: 1; }
+
+.cat-header {
+  padding: 20rpx 32rpx;
+  background-color: #ffffff;
+  border-bottom: 2rpx solid rgba(180, 34, 34, 0.05);
+}
+
+.cat-search-box {
+  background-color: #f1f5f9;
+  height: 64rpx;
+  border-radius: 32rpx;
+  display: flex;
+  align-items: center;
+  padding: 0 24rpx;
+  gap: 12rpx;
+}
+
+.cat-search-box .placeholder {
+  font-size: 24rpx;
+  color: #94a3b8;
+}
+
 .bg-white { background-color: #ffffff; }
 .bg-background-light { background-color: #f8f6f6; }
 
@@ -59,6 +83,51 @@
 .shadow-sm { box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.03); }
 .text-center { text-align: center; }
 
+.item-card {
+  margin-bottom: 32rpx;
+}
 .item-img {
-  height: 256rpx;
+  width: 100%;
+  height: 380rpx;
+  background-color: #f1f5f9;
+}
+
+/* ══ 禅意小加载器 ══ */
+.zen-loader-small {
+  display: flex;
+  justify-content: center;
+  padding: 60rpx 0;
+}
+.zen-loader-small .loader-dot {
+  width: 12rpx;
+  height: 12rpx;
+  background-color: #b42222;
+  border-radius: 50%;
+  animation: zen-pulse 2s infinite ease-in-out;
+}
+
+@keyframes zen-pulse {
+  0% { transform: scale(0.8); opacity: 0.2; }
+  50% { transform: scale(2.5); opacity: 0.6; }
+  100% { transform: scale(0.8); opacity: 0.2; }
+}
+
+/* ══ 空状态 ══ */
+.empty-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+.empty-icon {
+  width: 80rpx;
+  height: 80rpx;
+  opacity: 0.2;
+  margin-bottom: 24rpx;
+}
+.empty-text {
+  font-size: 24rpx;
+  color: #94a3b8;
+  letter-spacing: 0.1em;
 }

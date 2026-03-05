@@ -64,9 +64,9 @@
 
 .action-icons { 
   display: flex; 
-  gap: 32rpx; 
+  gap: 20rpx; 
   flex-shrink: 0;
-  width: 200rpx;
+  width: 280rpx;
 }
 .action-item {
   display: flex !important;
@@ -77,18 +77,20 @@
   margin: 0 !important;
   line-height: inherit !important; 
   border-radius: 0 !important;
-  width: 80rpx !important;
+  flex: 1 !important;
 }
 .action-item::after { display: none !important; }
 .action-img { width: 44rpx; height: 44rpx; opacity: 0.6; }
 .action-text { font-size: 20rpx; color: #64748b; margin-top: 4rpx; }
+.action-text.text-primary { color: #b42222; }
 
 /* Fixed pixel-width container */
 .action-btns {
   display: flex;
-  width: 450rpx;
+  flex: 1;
   height: 88rpx;
   flex-shrink: 0;
+  margin-left: 10rpx;
 }
 .btn-cart {
   width: 50%;

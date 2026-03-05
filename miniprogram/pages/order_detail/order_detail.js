@@ -40,9 +40,16 @@ Page({
             let totalCount = 0;
             if (data && data.items) {
                 totalCount = data.items.reduce((sum, item) => sum + item.quantity, 0);
-                const d = new Date(data.create_time + 'Z');
+                const isoTime = (data.create_time || '').replace(' ', 'T') + 'Z';
+                const d = new Date(isoTime);
                 const offset = new Date(d.getTime() + 8 * 60 * 60 * 1000);
                 data.create_time = offset.toISOString().replace('T', ' ').substring(0, 16);
+
+                // Format order item images
+                data.items = data.items.map(item => ({
+                    ...item,
+                    cover_image: api.imgUrl(item.cover_image)
+                }));
             }
             // Mapping address from enriched order data
             let address = null;

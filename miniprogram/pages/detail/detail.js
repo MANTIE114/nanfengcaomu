@@ -2,19 +2,39 @@ const api = require('../../api.js');
 
 Page({
     data: {
-        product: {}
+        product: {},
+        isFavorited: false
     },
     onLoad(options) {
         if (options.id) {
             this.fetchDetail(options.id);
+            this.fetchFavoriteStatus(options.id);
         }
     },
     fetchDetail(id) {
         api.getProductDetail(id).then(data => {
+            if (data) {
+                data.cover_image = api.imgUrl(data.cover_image);
+            }
             this.setData({
                 product: data
             })
         }).catch(console.error);
+    },
+    fetchFavoriteStatus(id) {
+        api.getFavoriteStatus(id).then(res => {
+            this.setData({ isFavorited: res.isFavorited });
+        });
+    },
+    toggleFavorite() {
+        if (!this.data.product.id) return;
+        api.toggleFavorite(this.data.product.id).then(res => {
+            this.setData({ isFavorited: res.isFavorited });
+            wx.showToast({
+                title: res.isFavorited ? '已收藏' : '已取消收藏',
+                icon: 'none'
+            });
+        });
     },
     addToCart(callback) {
         if (!this.data.product || !this.data.product.id) return;

@@ -1,0 +1,71 @@
+<view class="container">
+  <!-- Search Bar Header -->
+  <view class="search-header">
+    <view class="search-input-wrap">
+      <icon type="search" size="18" color="#94a3b8"></icon>
+      <input 
+        class="search-input" 
+        placeholder="寻一缕古法醇香" 
+        value="{{keyword}}" 
+        bindinput="onInput"
+        bindconfirm="onSearch"
+        focus="{{true}}"
+        confirm-type="search"
+      />
+      <icon 
+        wx:if="{{keyword}}" 
+        type="clear" size="18" bindtap="onClear"
+      ></icon>
+    </view>
+    <view class="cancel-btn" bindtap="onCancel">取消</view>
+  </view>
+
+  <!-- Content Area -->
+  <scroll-view class="search-content" scroll-y>
+    <!-- Loading -->
+    <view class="zen-loader-small" wx:if="{{isLoading}}">
+      <view class="loader-dot"></view>
+    </view>
+
+    <!-- Results Count -->
+    <view class="results-info" wx:if="{{!isLoading && products.length > 0}}">
+      <text>为您找到 {{products.length}} 件相关好物</text>
+    </view>
+
+    <!-- Product List -->
+    <view class="product-grid" wx:if="{{!isLoading && products.length > 0}}">
+      <view 
+        class="product-card" 
+        wx:for="{{products}}" wx:key="id" 
+        bindtap="goToDetail" data-id="{{item.id}}">
+        <image class="product-img" src="{{item.cover_image}}" mode="aspectFill"></image>
+        <view class="product-info">
+          <view class="product-name">{{item.name}}</view>
+          <view class="product-subtitle">{{item.subtitle || 'Zen Aesthetics'}}</view>
+          <view class="product-footer">
+            <text class="product-price">¥{{item.price}}</text>
+            <view class="view-btn">查看</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Empty State -->
+    <view class="empty-state" wx:if="{{!isLoading && keyword && products.length === 0}}">
+      <image class="empty-icon" src="https://img.icons8.com/ios/100/b42222/search--v1.png"></image>
+      <text class="empty-title">未找到相关好物</text>
+      <text class="empty-desc">换个关键词试试，也许缘分在别处</text>
+    </view>
+
+    <!-- History / Suggestions (Placeholder) -->
+    <view class="initial-state" wx:if="{{!keyword && !isLoading}}">
+      <view class="section-title">热门推荐</view>
+      <view class="tag-cloud">
+        <view class="tag" bindtap="tapTag" data-val="线香">线香</view>
+        <view class="tag" bindtap="tapTag" data-val="老山檀">老山檀</view>
+        <view class="tag" bindtap="tapTag" data-val="漆珠">漆珠</view>
+        <view class="tag" bindtap="tapTag" data-val="龙井">龙井</view>
+      </view>
+    </view>
+  </scroll-view>
+</view>

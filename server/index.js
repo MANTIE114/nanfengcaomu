@@ -4,8 +4,20 @@ const bodyParser = require('body-parser');
 const db = require('./db');
 const app = express();
 const PORT = 3000;
-
 const path = require('path');
+const multer = require('multer');
+
+// Configure multer storage
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, '../Resources'));
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
 
 app.use(cors());
 app.use(bodyParser.json({ limit: '50mb' }));
@@ -14,6 +26,15 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 // Serve static files from Resources folder
 app.use('/assets', express.static(path.join(__dirname, '../Resources')));
 app.use('/Resources', express.static(path.join(__dirname, '../Resources')));
+
+// Image Upload Endpoint
+app.post('/api/upload', upload.single('file'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+    const fileUrl = `/assets/${req.file.filename}`;
+    res.json({ success: true, url: fileUrl });
+});
 
 
 // Mock User login/auth endpoint
@@ -31,32 +52,180 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 app.get('/api/users/profile', (req, res) => {
-    const userId = req.headers['x-user-id'] || 1; // Default mapped to 1
-    db.get("SELECT id, nickname, avatar, phone, points, balance FROM users WHERE id = ?", [userId], (err, row) => {
+    const userId = req.headers['x-user-id'] || 1;
+    const sql = `
+        SELECT u.*, 
+        (SELECT COUNT(*) FROM favorites f WHERE f.user_id = u.id) as collect_count 
+        FROM users u WHERE u.id = ?
+    `;
+    db.get(sql, [userId], (err, row) => {
+        if (err) return res.status(500).json({ success: false, message: err.message });
         res.json({ success: true, data: row });
+    });
+});
+
+app.put('/api/users/profile', (req, res) => {
+    const userId = req.headers['x-user-id'] || 1;
+    const { nickname, avatar } = req.body;
+
+    let updates = [];
+    let params = [];
+
+    if (nickname !== undefined) {
+        updates.push("nickname = ?");
+        params.push(nickname);
+    }
+    if (avatar !== undefined) {
+        updates.push("avatar = ?");
+        params.push(avatar);
+    }
+
+    if (updates.length === 0) {
+        return res.json({ success: true, message: 'No changes' });
+    }
+
+    params.push(userId);
+    const sql = `UPDATE users SET ${updates.join(', ')} WHERE id = ?`;
+
+    db.run(sql, params, function (err) {
+        if (err) return res.status(500).json({ success: false, message: err.message });
+        res.json({ success: true });
     });
 });
 
 // Categories
 app.get('/api/categories', (req, res) => {
-    db.all("SELECT * FROM categories ORDER BY sort_order ASC", (err, rows) => {
+    db.all("SELECT * FROM categories ORDER BY is_top DESC, sort_order ASC", (err, rows) => {
         res.json({ success: true, data: rows });
+    });
+});
+
+app.post('/api/admin/categories', (req, res) => {
+    const { name, subtitle = '', image = '', icon = '', sort_order = 0, status = 1, is_top = 0 } = req.body;
+    db.run("INSERT INTO categories (name, subtitle, image, icon, sort_order, status, is_top) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        [name, subtitle, image, icon, sort_order, status, is_top],
+        function (err) {
+            if (err) return res.status(500).json({ success: false, message: err.message });
+            res.json({ success: true, data: { id: this.lastID } });
+        });
+});
+
+app.put('/api/admin/categories/:id', (req, res) => {
+    const { id } = req.params;
+    const { name, subtitle = '', image = '', icon = '', sort_order = 0, status = 1, is_top = 0 } = req.body;
+    db.run("UPDATE categories SET name = ?, subtitle = ?, image = ?, icon = ?, sort_order = ?, status = ?, is_top = ? WHERE id = ?",
+        [name, subtitle, image, icon, sort_order, status, is_top, id],
+        function (err) {
+            if (err) return res.status(500).json({ success: false, message: err.message });
+            res.json({ success: true });
+        });
+});
+
+app.put('/api/admin/categories/:id/products', (req, res) => {
+    const { id } = req.params;
+    const { productIds } = req.body; // Array of IDs to be IN this category
+    if (!Array.isArray(productIds)) return res.status(400).json({ success: false, message: 'Invalid productIds' });
+
+    db.serialize(() => {
+        // Step 1: Remove products from this category (set to default 1 or similar)
+        // Note: Schema says category_id NOT NULL, so we move them to 'Misc' or 1
+        db.run("UPDATE products SET category_id = 1 WHERE category_id = ?", [id]);
+
+        // Step 2: Assign selected products to this category
+        if (productIds.length > 0) {
+            const placeholders = productIds.map(() => '?').join(',');
+            db.run(`UPDATE products SET category_id = ? WHERE id IN (${placeholders})`, [id, ...productIds], (err) => {
+                if (err) return res.status(500).json({ success: false, message: err.message });
+                res.json({ success: true });
+            });
+        } else {
+            res.json({ success: true });
+        }
+    });
+});
+
+app.delete('/api/admin/categories/:id', (req, res) => {
+    const { id } = req.params;
+    // Check if products exist in this category first
+    db.get("SELECT COUNT(*) as count FROM products WHERE category_id = ?", [id], (err, row) => {
+        if (row && row.count > 0) {
+            return res.status(400).json({ success: false, message: '无法删除：该分类下已有商品' });
+        }
+        db.run("DELETE FROM categories WHERE id = ?", [id], function (err) {
+            if (err) return res.status(500).json({ success: false, message: err.message });
+            res.json({ success: true });
+        });
+    });
+});
+
+// Favorites
+app.get('/api/favorites/status', (req, res) => {
+    const userId = req.headers['x-user-id'] || 1;
+    const { productId } = req.query;
+    db.get("SELECT id FROM favorites WHERE user_id = ? AND product_id = ?", [userId, productId], (err, row) => {
+        res.json({ success: true, isFavorited: !!row });
+    });
+});
+
+app.post('/api/favorites/toggle', (req, res) => {
+    const userId = req.headers['x-user-id'] || 1;
+    const { productId } = req.body;
+    db.get("SELECT id FROM favorites WHERE user_id = ? AND product_id = ?", [userId, productId], (err, row) => {
+        if (row) {
+            db.run("DELETE FROM favorites WHERE id = ?", [row.id], () => {
+                res.json({ success: true, isFavorited: false });
+            });
+        } else {
+            db.run("INSERT INTO favorites (user_id, product_id) VALUES (?, ?)", [userId, productId], () => {
+                res.json({ success: true, isFavorited: true });
+            });
+        }
+    });
+});
+
+// Favorites list
+app.get('/api/favorites/list', (req, res) => {
+    const userId = req.headers['x-user-id'] || 1;
+    const sql = `
+        SELECT p.id, p.name, p.subtitle, p.price, p.cover_image
+        FROM favorites f
+        JOIN products p ON f.product_id = p.id
+        WHERE f.user_id = ?
+    `;
+    db.all(sql, [userId], (err, rows) => {
+        if (err) return res.status(500).json({ success: false, message: err.message });
+        const domain = `http://${req.headers.host}`;
+        const enriched = (rows || []).map(p => ({
+            ...p,
+            cover_image: p.cover_image && p.cover_image.startsWith('/') ? domain + p.cover_image : p.cover_image
+        }));
+        res.json({ success: true, data: enriched });
     });
 });
 
 // Products
 app.get('/api/products', (req, res) => {
-    const { categoryId, showAll } = req.query;
+    const { categoryId, keyword, showAll } = req.query;
     let sql = "SELECT * FROM products WHERE 1=1";
     let params = [];
+
     if (showAll !== '1') {
         sql += " AND status = 1";
     }
+
     if (categoryId) {
         sql += " AND category_id = ?";
         params.push(categoryId);
     }
+
+    if (keyword) {
+        sql += " AND (name LIKE ? OR subtitle LIKE ? OR description LIKE ?)";
+        const searchPattern = `%${keyword}%`;
+        params.push(searchPattern, searchPattern, searchPattern);
+    }
+
     sql += " ORDER BY create_time DESC";
+
     db.all(sql, params, (err, rows) => {
         res.json({ success: true, data: rows });
     });
@@ -166,6 +335,10 @@ app.post('/api/orders', (req, res) => {
 
 app.get('/api/orders', (req, res) => {
     const userId = req.headers['x-user-id'] || 1;
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 20;
+    const offset = (page - 1) * pageSize;
+
     const sql = `
         SELECT o.*, 
             (SELECT p.cover_image FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = o.id LIMIT 1) as cover_image,
@@ -175,12 +348,14 @@ app.get('/api/orders', (req, res) => {
         FROM orders o
         WHERE user_id = ? AND is_user_deleted = 0
         ORDER BY create_time DESC
+        LIMIT ? OFFSET ?
     `;
-    db.all(sql, [userId], (err, rows) => {
+    db.all(sql, [userId, pageSize, offset], (err, rows) => {
         if (err) return res.status(500).json({ success: false, message: err.message });
         res.json({ success: true, data: rows });
     });
 });
+
 
 
 app.post('/api/orders/:id/user-delete', (req, res) => {
@@ -378,7 +553,26 @@ app.post('/api/admin/login', (req, res) => {
 });
 
 app.get('/api/admin/orders', (req, res) => {
-    db.all("SELECT o.*, u.nickname FROM orders o JOIN users u ON o.user_id = u.id ORDER BY create_time DESC", (err, rows) => {
+    const { keyword } = req.query;
+    let sql = `
+        SELECT o.*, u.nickname, a.recipient, a.phone as recipient_phone,
+            (SELECT p.name FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = o.id LIMIT 1) as main_product_name,
+            (SELECT p.cover_image FROM order_items oi JOIN products p ON oi.product_id = p.id WHERE oi.order_id = o.id LIMIT 1) as main_product_image
+        FROM orders o 
+        JOIN users u ON o.user_id = u.id 
+        LEFT JOIN addresses a ON o.address_id = a.id
+        WHERE 1=1
+    `;
+    let params = [];
+    if (keyword) {
+        sql += ` AND (o.order_no LIKE ? OR u.nickname LIKE ? OR a.recipient LIKE ? OR a.phone LIKE ? OR o.tracking_no LIKE ?)`;
+        const p = `%${keyword}%`;
+        params.push(p, p, p, p, p);
+    }
+    sql += ` ORDER BY o.create_time DESC`;
+
+    db.all(sql, params, (err, rows) => {
+        if (err) return res.status(500).json({ success: false, message: err.message });
         res.json({ success: true, data: rows });
     });
 });

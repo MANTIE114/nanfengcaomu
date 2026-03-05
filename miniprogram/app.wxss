@@ -11,13 +11,17 @@ view, text, button, image, scroll-view {
 .flex-col { flex-direction: column; }
 .justify-between { justify-content: space-between; }
 .items-center { align-items: center; }
+.justify-center { justify-content: center; }
 .items-start { align-items: flex-start; }
+.line-none { line-height: 1; }
 .mt-4 { margin-top: 32rpx; }
 .mt-2 { margin-top: 16rpx; }
 .mb-2 { margin-bottom: 16rpx; }
 .mb-4 { margin-bottom: 32rpx; }
 .mb-6 { margin-bottom: 48rpx; }
 .mb-8 { margin-bottom: 64rpx; }
+.mr-3 { margin-right: 24rpx; }
+.mr-4 { margin-right: 32rpx; }
 .w-full { width: 100%; }
 .h-full { height: 100%; }
 .font-bold { font-weight: bold; }

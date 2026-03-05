@@ -32,7 +32,8 @@ Page({
                 const formatTime = (ts) => {
                     if (!ts) return '';
                     try {
-                        const d = new Date(ts.includes('T') ? ts : ts + 'Z');
+                        const isoTime = ts.includes('T') ? ts : ts.replace(' ', 'T') + 'Z';
+                        const d = new Date(isoTime);
                         const offset = new Date(d.getTime() + 8 * 60 * 60 * 1000);
                         return offset.toISOString().replace('T', ' ').substring(0, 16);
                     } catch (e) { return ts; }

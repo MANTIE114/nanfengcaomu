@@ -4,6 +4,13 @@ const Icon = ({ name, clazz = '' }: { name: string, clazz?: string }) => (
   <span className={`material-symbols-outlined ${clazz}`}>{name}</span>
 );
 
+const getAssetUrl = (url: string) => {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  const serverBase = `http://${window.location.hostname}:3000`;
+  return url.startsWith('/') ? `${serverBase}${url}` : `${serverBase}/${url}`;
+};
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [products, setProducts] = useState<any[]>([]);
@@ -16,6 +23,23 @@ export default function App() {
   const [shippingForm, setShippingForm] = useState({ tracking_no: '', logistics_company: '顺丰速运' });
   const [apiError, setApiError] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [shippingError, setShippingError] = useState('');
+  const [categories, setCategories] = useState<any[]>([]);
+  const [isCategoryManagerOpen, setIsCategoryManagerOpen] = useState(false);
+  const [currentCategory, setCurrentCategory] = useState<any>(null);
+  const [selectedProductIds, setSelectedProductIds] = useState<number[]>([]);
+  const [isProductPickerOpen, setIsProductPickerOpen] = useState(false);
+  const [categoryError, setCategoryError] = useState('');
+  const [orderSearchKeyword, setOrderSearchKeyword] = useState('');
+  const [isOrderSearchVisible, setIsOrderSearchVisible] = useState(false);
+  const [productSearchKeyword, setProductSearchKeyword] = useState('');
+  const [isProductSearchVisible, setIsProductSearchVisible] = useState(false);
+  const [toast, setToast] = useState<{ message: string, type: 'success' | 'error' | 'info' } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 2500);
+  };
 
   const [isAuthenticated, setIsAuthenticated] = useState(() => localStorage.getItem('nft_admin_auth') === 'true');
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
@@ -33,14 +57,45 @@ export default function App() {
   // Delete confirm modal
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
 
-  const handleImageUpload = (e: any) => {
+  const handleImageUpload = async (e: any) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setCurrentProduct({ ...currentProduct, cover_image: event.target?.result });
-      };
-      reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const API_BASE = `http://${window.location.hostname}:3000/api`;
+        const res = await fetch(`${API_BASE}/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+          setCurrentProduct({ ...currentProduct, cover_image: data.url });
+        }
+      } catch (err) {
+        console.error('Product image upload failed:', err);
+      }
+    }
+  };
+
+  const handleCategoryImageUpload = async (e: any) => {
+    const file = e.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const API_BASE = `http://${window.location.hostname}:3000/api`;
+        const res = await fetch(`${API_BASE}/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (data.success) {
+          setCurrentCategory({ ...currentCategory, image: data.url });
+        }
+      } catch (err) {
+        console.error('Category image upload failed:', err);
+      }
     }
   };
   const handleInlineAction = async (product: any, updates: any) => {
@@ -124,7 +179,17 @@ export default function App() {
       } catch (e) { console.error("Parse details failed", e); }
       setCurrentProduct({ ...product, details });
     } else {
-      setCurrentProduct({ name: '', subtitle: '', price: '', stock: '', cover_image: '', sku: '', description: '', details: { weight: '', length: '', burnTime: '' } });
+      setCurrentProduct({
+        name: '',
+        subtitle: '',
+        price: '',
+        stock: '',
+        cover_image: '',
+        sku: '',
+        description: '',
+        category_id: categories[0]?.id || 1,
+        details: { weight: '', length: '', burnTime: '' }
+      });
     }
     setIsEditing(true);
   };
@@ -170,13 +235,119 @@ export default function App() {
     }
   };
 
+  const handleSaveCategory = async () => {
+    if (!currentCategory.name.trim()) {
+      setCategoryError('请输入品类名称');
+      return;
+    }
+    setCategoryError('');
+
+    const isUpdating = !!currentCategory.id;
+    const method = isUpdating ? 'PUT' : 'POST';
+    const API_BASE = `http://${window.location.hostname}:3000/api`;
+    const url = isUpdating ? `${API_BASE}/admin/categories/${currentCategory.id}` : `${API_BASE}/admin/categories`;
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(currentCategory)
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Batch Update Products Category
+        if (isUpdating || data.data?.id) {
+          const catId = currentCategory.id || data.data?.id;
+          await fetch(`${API_BASE}/admin/categories/${catId}/products`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productIds: selectedProductIds })
+          });
+        }
+
+        showToast(isUpdating ? '品类修改成功' : '新增品类成功');
+        // Refresh categories and products
+        fetchData();
+        // Returns to category list page
+        setCurrentCategory(null);
+        setSelectedProductIds([]);
+      } else {
+        showToast(data.message || '操作失败', 'error');
+      }
+    } catch (e) {
+      console.error(e);
+      showToast('服务器连接异常', 'error');
+    }
+  };
+
+  const openCategoryEditor = (c: any = null) => {
+    if (c) {
+      setCurrentCategory(c);
+      const linked = products.filter(p => p.category_id === c.id).map(p => p.id);
+      setSelectedProductIds(linked);
+    } else {
+      setCurrentCategory({ name: '', subtitle: '', image: '', sort_order: categories.length + 1, status: 1, is_top: 0 });
+      setSelectedProductIds([]);
+    }
+    setCategoryError('');
+  };
+
+  const handleDeleteCategory = async (id: number) => {
+    if (!confirm('确认删除该分类吗？如果是正在使用的分类，请先处理关联商品。')) return;
+    const API_BASE = `http://${window.location.hostname}:3000/api`;
+    try {
+      const res = await fetch(`${API_BASE}/admin/categories/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setCategories(categories.filter(c => c.id !== id));
+        setCurrentCategory(null);
+      } else {
+        alert(data.message || '删除失败');
+      }
+    } catch (e) { console.error(e); }
+  };
+
+  const handleToggleCategoryTop = async (e: any, c: any) => {
+    e.stopPropagation();
+    const newIsTop = c.is_top ? 0 : 1;
+
+    if (newIsTop === 1) {
+      const currentTopCount = categories.filter(cat => cat.is_top === 1).length;
+      if (currentTopCount >= 4) {
+        showToast('首页推荐位已满（最多4个）', 'error');
+        return;
+      }
+    }
+
+    const payload = { ...c, is_top: newIsTop };
+    const API_BASE = `http://${window.location.hostname}:3000/api`;
+    try {
+      const res = await fetch(`${API_BASE}/admin/categories/${c.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(newIsTop ? '已推荐至首页' : '已从首页移除');
+        fetchData();
+      } else {
+        showToast(data.message || '操作失败', 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('操作异常', 'error');
+    }
+  };
+
   const fetchData = async () => {
     setIsRefreshing(true);
     const API_BASE = `http://${window.location.hostname}:3000/api`;
 
     try {
       // Products
-      const pRes = await fetch(`${API_BASE}/products?showAll=1`);
+      const pUrl = `${API_BASE}/products?showAll=1${productSearchKeyword ? `&keyword=${encodeURIComponent(productSearchKeyword)}` : ''}`;
+      const pRes = await fetch(pUrl);
       const pData = await pRes.json();
       if (pData.success) {
         setProducts(pData.data);
@@ -191,10 +362,18 @@ export default function App() {
       if (sData.success) setStats(sData.data);
 
       // Orders
-      const oRes = await fetch(`${API_BASE}/admin/orders`);
+      const oUrl = `${API_BASE}/admin/orders${orderSearchKeyword ? `?keyword=${encodeURIComponent(orderSearchKeyword)}` : ''}`;
+      const oRes = await fetch(oUrl);
       const oData = await oRes.json();
       if (oData.success) {
         setOrders(oData.data);
+      }
+
+      // Categories
+      const cRes = await fetch(`${API_BASE}/categories`);
+      const cData = await cRes.json();
+      if (cData.success) {
+        setCategories(cData.data);
       }
     } catch (err) {
       console.warn("Fetch failed:", err);
@@ -207,6 +386,35 @@ export default function App() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (activeTab === 'orders') {
+        const fetchOrders = async () => {
+          const API_BASE = `http://${window.location.hostname}:3000/api`;
+          const oUrl = `${API_BASE}/admin/orders${orderSearchKeyword ? `?keyword=${encodeURIComponent(orderSearchKeyword)}` : ''}`;
+          const oRes = await fetch(oUrl);
+          const oData = await oRes.json();
+          if (oData.success) {
+            setOrders(oData.data);
+          }
+        };
+        fetchOrders();
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [orderSearchKeyword]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Don't fetch if not on products tab to avoid unnecessary calls on startup
+      // But we need initial data, so maybe just check keyword if we want to reactive search
+      if (activeTab === 'products') {
+        fetchData();
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [productSearchKeyword]);
 
   const handleViewOrder = async (order: any, autoScrollToShip = false) => {
     // 1. Reset form and show modal immediately with available data to improve responsiveness
@@ -266,7 +474,14 @@ export default function App() {
   };
 
   const shipOrder = async () => {
-    if (!shippingForm.tracking_no) return alert('请输入单号');
+    if (!shippingForm.tracking_no.trim()) {
+      setShippingError('请务必输入或扫描快递单号');
+      return;
+    }
+    setShippingError('');
+
+    if (!confirm(`请核对发货信息：\n物流公司：${shippingForm.logistics_company}\n快递单号：${shippingForm.tracking_no}\n确认发货吗？`)) return;
+
     const API_BASE = `http://${window.location.hostname}:3000/api`;
     try {
       const res = await fetch(`${API_BASE}/admin/orders/${currentOrderDetail.id}/ship`, {
@@ -359,7 +574,7 @@ export default function App() {
         <div className="w-full sm:max-w-md bg-white relative shadow-2xl overflow-hidden flex flex-col sm:rounded-[40px] border-0 sm:border-8 border-slate-900 sm:h-[850px] h-[100dvh]">
           <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[#fcfaf9]">
             <div className="w-24 h-24 rounded-full bg-primary/20 flex flex-col items-center justify-center mb-6 shadow-md border-4 border-white overflow-hidden">
-              <img src="/assets/avatar.jpg" className="w-full h-full object-cover rounded-full" />
+              <img src={getAssetUrl("/assets/avatar.jpg")} className="w-full h-full object-cover rounded-full" />
             </div>
             <h1 className="text-2xl font-bold text-slate-800 tracking-tight mb-2">Nan Feng Cao Mu</h1>
             <p className="text-sm text-slate-500 mb-8 uppercase tracking-widest font-semibold">后台管理系统</p>
@@ -418,56 +633,6 @@ export default function App() {
               <span className="absolute top-2 right-2 size-2 bg-primary rounded-full border-2 border-white"></span>
             </button>
           </header>
-        ) : activeTab === 'products' ? (
-          <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-slate-200">
-            <div className="flex items-center justify-between px-4 py-4">
-              <div className="flex flex-col">
-                <h1 className="text-xl font-bold tracking-tight text-primary-dark">商品管理</h1>
-                <span className="text-[10px] uppercase tracking-widest text-slate-500">南风草木 · 后台管理系统</span>
-              </div>
-              <div className="flex gap-3 items-center">
-                <button
-                  onClick={() => handleEdit()}
-                  className="bg-primary-dark text-white text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 shadow hover:bg-opacity-90 active:scale-95 transition">
-                  <Icon name="add" clazz="text-[14px]" /> 添加商品
-                </button>
-                <button className="p-2 rounded-full hover:bg-slate-100 text-slate-600 hidden sm:block">
-                  <Icon name="notifications" />
-                </button>
-                <div className="h-8 w-8 rounded-full bg-primary-dark/20 hidden sm:flex items-center justify-center overflow-hidden border border-primary-dark/30">
-                  <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKfzXha0-NEw-Ny8DP46rW2BVKghtsIc3dhwMPb5397nkbCZCgDdPMDDsSy49lTVZVg1Ibk-MgNtpTSBGeEDZJP9o5JfY81iqesKEP8MxOUYTKHHJFXijR8IfUeX-O5CO9VXYnTsyKEx0wvUeCAh-FlyU0mxTvsy1BB0gjyF17X1swpG3oIEi_kisskk-Q8AreQBVI_mrShazZKr3_dvVBeZEORPT7TxtvpPU_rxQCBfGv-qNh_Ev7bLZ_eGz-oCimD_6nWlge1IE" />
-                </div>
-              </div>
-            </div>
-            {/* Search Input */}
-            <div className="px-4 pb-4">
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Icon name="search" clazz="text-slate-400 text-sm" />
-                </div>
-                <input className="block w-full pl-10 pr-3 py-2.5 border border-slate-200 bg-white rounded-xl text-sm placeholder-slate-400 focus:ring-2 focus:ring-primary-dark/50 transition-all outline-none" placeholder="搜索商品名称或编码..." />
-              </div>
-            </div>
-            {/* Filter Tabs */}
-            <nav className="flex px-4 overflow-x-auto gap-6 border-t border-slate-100 no-scrollbar">
-              <a onClick={() => { setProductFilter('all'); fetchData(); }} className={`py-3 text-sm font-semibold border-b-2 whitespace-nowrap cursor-pointer transition-colors ${productFilter === 'all' ? 'border-primary-dark text-primary-dark' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
-                全部 <span className="text-xs ml-1 opacity-70">{products.length}</span>
-              </a>
-              <a onClick={() => { setProductFilter('instock'); fetchData(); }} className={`py-3 text-sm font-semibold border-b-2 whitespace-nowrap cursor-pointer transition-colors ${productFilter === 'instock' ? 'border-primary-dark text-primary-dark' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
-                现货 <span className="text-xs ml-1 opacity-70">{products.filter(p => p.status === 1 && p.stock > 5).length}</span>
-              </a>
-              <a onClick={() => { setProductFilter('low'); fetchData(); }} className={`py-3 text-sm font-semibold border-b-2 whitespace-nowrap cursor-pointer transition-colors flex items-center gap-1.5 ${productFilter === 'low' ? 'border-orange-500 text-orange-500' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
-                库存告急
-                {products.filter(p => p.status === 1 && p.stock <= 5 && p.stock > 0).length > 0 && (
-                  <span className="h-1.5 w-1.5 rounded-full bg-red-500"></span>
-                )}
-                <span className="text-xs opacity-70">{products.filter(p => p.status === 1 && p.stock <= 5 && p.stock > 0).length}</span>
-              </a>
-              <a onClick={() => { setProductFilter('offline'); fetchData(); }} className={`py-3 text-sm font-semibold border-b-2 whitespace-nowrap cursor-pointer transition-colors ${productFilter === 'offline' ? 'border-slate-600 text-slate-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
-                已下架 <span className="text-xs ml-1 opacity-70">{products.filter(p => p.status === 0 || p.stock === 0).length}</span>
-              </a>
-            </nav>
-          </header>
         ) : null}
 
         {/* Refreshing Indicator Overlay */}
@@ -507,7 +672,7 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-1 rounded-xl p-5 bg-white border border-slate-100 shadow-md">
+                <div className="flex flex-col gap-1 rounded-xl p-5 bg-white border border-slate-100 shadow-md cursor-pointer hover:border-primary/30 hover:shadow-lg active:scale-[0.98] transition-all" onClick={() => { setActiveTab('orders'); fetchData(); }}>
                   <p className="text-slate-500 text-xs font-medium">累计订单</p>
                   <p className="text-xl font-bold">{stats.totalOrders}</p>
                   <p className="text-slate-400 text-xs font-medium flex items-center gap-0.5">
@@ -515,7 +680,7 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-1 rounded-xl p-5 bg-white border border-slate-100 shadow-md">
+                <div className="flex flex-col gap-1 rounded-xl p-5 bg-white border border-slate-100 shadow-md cursor-pointer hover:border-primary/30 hover:shadow-lg active:scale-[0.98] transition-all" onClick={() => { setActiveTab('products'); fetchData(); }}>
                   <p className="text-slate-500 text-xs font-medium">商品数量</p>
                   <p className="text-xl font-bold">{stats.totalProducts}</p>
                   <p className="text-slate-400 text-xs font-medium flex items-center gap-0.5">
@@ -587,27 +752,37 @@ export default function App() {
                       <Icon name="receipt_long" clazz="text-4xl mb-2 text-slate-300" />
                       <p className="text-sm">暂无订单数据</p>
                     </div>
-                  ) : orders.slice(0, 5).map((o, index) => (
+                  ) : orders.slice(0, 5).map((o: any, index) => (
                     <div key={index} onClick={() => handleViewOrder(o)} className="flex items-center gap-3 p-3 bg-white rounded-lg border border-slate-100 shadow-sm cursor-pointer hover:shadow-md transition">
-                      <div className="size-10 rounded-lg bg-brand-muted flex items-center justify-center text-primary">
-                        <Icon name={o.icon || 'receipt'} />
+                      <div className="size-10 rounded-lg bg-brand-muted flex items-center justify-center text-primary overflow-hidden">
+                        {o.main_product_image ? (
+                          <img src={getAssetUrl(o.main_product_image)} alt="P" className="w-full h-full object-cover" />
+                        ) : (
+                          <Icon name={o.icon || 'receipt'} />
+                        )}
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-bold truncate">{o.product_name || `订单 #${o.order_no}`}</p>
-                        <p className="text-xs text-slate-500">订单 #{o.order_no} • {o.create_time}</p>
+                        <p className="text-sm font-bold truncate">{o.main_product_name || `订单 #${o.order_no}`}</p>
+                        <p className="text-xs text-slate-500">订单 #{o.order_no} • {new Date(o.create_time).toLocaleDateString()}</p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-bold">¥{o.total_amount}</p>
-                        {o.status === 1 ? (
+                        {o.status === 0 ? (
+                          <p className="text-[10px] text-amber-500 font-bold">待支付</p>
+                        ) : o.status === 1 ? (
                           <div className="flex flex-col items-end gap-1">
-                            <p className="text-[10px] text-emerald-500 font-bold">已支付</p>
+                            <p className="text-[10px] text-emerald-500 font-bold">待发货</p>
                             <button
                               onClick={(e) => { e.stopPropagation(); handleViewOrder(o, true); }}
-                              className="px-2 py-0.5 bg-primary text-white text-[9px] rounded font-bold"
+                              className="px-3 py-2 bg-primary text-white text-[11px] rounded-lg font-bold active:scale-95 transition-all shadow-sm"
                             >立即发货</button>
                           </div>
+                        ) : o.status === 2 ? (
+                          <p className="text-[10px] text-sky-500 font-bold">待收货</p>
+                        ) : o.status === 3 ? (
+                          <p className="text-[10px] text-primary font-bold">已完成</p>
                         ) : o.status === 4 ? (
-                          <p className="text-[10px] text-red-500 font-bold">申请售后</p>
+                          <p className="text-[10px] text-red-500 font-bold">售后中</p>
                         ) : o.status === 5 ? (
                           <p className="text-[10px] text-slate-400 font-bold">已退款</p>
                         ) : (
@@ -626,15 +801,54 @@ export default function App() {
             <div className="px-0 py-0 space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-100 p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold text-slate-900">订单管理</h2>
-                  <div className="flex items-center gap-2">
-                    <button className="p-2 rounded-full hover:bg-slate-100 text-slate-500">
-                      <Icon name="search" />
-                    </button>
-                    <button className="p-2 rounded-full hover:bg-slate-100 text-slate-500">
-                      <Icon name="filter_list" />
-                    </button>
-                  </div>
+                  {!isOrderSearchVisible ? (
+                    <>
+                      <h2 className="text-xl font-bold text-slate-900">订单管理</h2>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setIsOrderSearchVisible(true)}
+                          className="p-2 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"
+                        >
+                          <Icon name="search" />
+                        </button>
+                        <button className="p-2 rounded-full hover:bg-slate-100 text-slate-500">
+                          <Icon name="filter_list" />
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-3 w-full animate-in slide-in-from-right-2 duration-300">
+                      <div className="relative flex-1">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                          <Icon name="search" clazz="text-lg" />
+                        </span>
+                        <input
+                          autoFocus
+                          className="w-full bg-slate-50 border-none rounded-xl py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 text-slate-700 font-medium"
+                          placeholder="搜索订单号、姓名、手机号..."
+                          value={orderSearchKeyword}
+                          onChange={e => setOrderSearchKeyword(e.target.value)}
+                        />
+                        {orderSearchKeyword && (
+                          <button
+                            onClick={() => setOrderSearchKeyword('')}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-300 hover:text-slate-500"
+                          >
+                            <Icon name="cancel" clazz="text-base" />
+                          </button>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => {
+                          setIsOrderSearchVisible(false);
+                          setOrderSearchKeyword('');
+                        }}
+                        className="text-sm font-bold text-primary px-2"
+                      >
+                        取消
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 <nav className="flex gap-6 overflow-x-auto no-scrollbar pt-2">
@@ -682,7 +896,14 @@ export default function App() {
                             {(order.nickname || 'U')[0]}
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-slate-900">{order.nickname || 'Unknown Customer'}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-bold text-slate-900">{order.nickname || 'Unknown Customer'}</p>
+                              {order.recipient && (
+                                <span className="text-[10px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-bold">
+                                  收货人: {order.recipient}
+                                </span>
+                              )}
+                            </div>
                             <p className="text-[10px] text-slate-400 font-medium tracking-wide">NO. {order.order_no || `#${order.id}`}</p>
                           </div>
                         </div>
@@ -701,10 +922,16 @@ export default function App() {
                       <div className="space-y-3 mb-4">
                         <div className="flex items-center gap-3">
                           <div className="size-12 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-primary overflow-hidden">
-                            <Icon name="inventory_2" clazz="text-lg opacity-50" />
+                            {order.main_product_image ? (
+                              <img src={getAssetUrl(order.main_product_image)} alt="Product" className="w-full h-full object-cover" />
+                            ) : (
+                              <Icon name="inventory_2" clazz="text-lg opacity-50" />
+                            )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-slate-900 truncate">南风草木 精选商品</p>
+                            <p className="text-xs font-bold text-slate-900 truncate">
+                              {order.main_product_name || '南风草木 精选商品'}
+                            </p>
                             <p className="text-[10px] text-slate-500 mt-0.5">{order.create_time}</p>
                           </div>
                           <div className="text-right">
@@ -722,12 +949,12 @@ export default function App() {
                           </span>
                         </div>
                         <div className="flex gap-2">
-                          <button onClick={(e) => { e.stopPropagation(); handleViewOrder(order); }} className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 active:scale-95 transition">
+                          <button onClick={(e) => { e.stopPropagation(); handleViewOrder(order); }} className="px-5 py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 active:scale-95 transition shadow-sm">
                             详情
                           </button>
                           {order.status === 1 && (
                             <button
-                              className="px-3 py-1.5 rounded-lg bg-primary-dark text-white text-xs font-bold shadow-md shadow-primary/20 hover:shadow-lg active:scale-95 transition"
+                              className="px-5 py-3 rounded-xl bg-primary-dark text-white text-sm font-bold shadow-lg shadow-primary/30 hover:shadow-xl active:scale-[0.97] transition"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleViewOrder(order, true);
@@ -765,6 +992,87 @@ export default function App() {
           {activeTab === 'products' && (
             <div className="px-4 py-4 space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
 
+              <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-100 p-4">
+                <div className="flex items-center justify-between mb-4">
+                  {!isProductSearchVisible ? (
+                    <>
+                      <h2 className="text-xl font-bold text-slate-900 leading-tight">商品管理</h2>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setIsProductSearchVisible(true)}
+                          className="p-2.5 rounded-xl hover:bg-slate-50 text-slate-500 transition-colors border border-transparent hover:border-slate-100"
+                        >
+                          <Icon name="search" />
+                        </button>
+                        <button
+                          onClick={() => setIsCategoryManagerOpen(true)}
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 text-[10px] font-bold hover:bg-emerald-100 active:scale-95 transition-all shadow-sm border border-emerald-100"
+                        >
+                          <Icon name="category" clazz="text-[14px]" /> 品类管理
+                        </button>
+                        <button
+                          onClick={() => handleEdit()}
+                          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-white text-[10px] font-bold hover:bg-opacity-90 shadow-lg shadow-primary/20 active:scale-95 transition-all"
+                        >
+                          <Icon name="add" clazz="text-[14px]" /> 添加商品
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-3 w-full animate-in slide-in-from-right-2 duration-300">
+                      <div className="relative flex-1">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                          <Icon name="search" clazz="text-lg" />
+                        </span>
+                        <input
+                          autoFocus
+                          className="w-full bg-slate-50 border-none rounded-2xl py-2.5 pl-10 pr-4 text-sm focus:ring-4 focus:ring-primary/10 text-slate-700 font-bold placeholder:font-normal"
+                          placeholder="搜索商品名称、编码..."
+                          value={productSearchKeyword}
+                          onChange={e => setProductSearchKeyword(e.target.value)}
+                        />
+                        {productSearchKeyword && (
+                          <button
+                            onClick={() => setProductSearchKeyword('')}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-300 hover:text-slate-500"
+                          >
+                            <Icon name="cancel" clazz="text-base" />
+                          </button>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => {
+                          setIsProductSearchVisible(false);
+                          setProductSearchKeyword('');
+                        }}
+                        className="text-sm font-bold text-primary px-2"
+                      >
+                        取消
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <nav className="flex gap-6 overflow-x-auto no-scrollbar pt-2">
+                  <a onClick={() => { setProductFilter('all'); fetchData(); }} className={`pb-3 text-sm font-semibold border-b-2 whitespace-nowrap cursor-pointer transition-all ${productFilter === 'all' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                    全部 <span className="text-xs ml-1 opacity-70">{products.length}</span>
+                  </a>
+                  <a onClick={() => { setProductFilter('instock'); fetchData(); }} className={`pb-3 text-sm font-semibold border-b-2 whitespace-nowrap cursor-pointer transition-all ${productFilter === 'instock' ? 'border-primary text-primary' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                    现货 <span className="text-xs ml-1 opacity-70">{products.filter(p => p.status === 1 && p.stock > 5).length}</span>
+                  </a>
+                  <a onClick={() => { setProductFilter('low'); fetchData(); }} className={`pb-3 text-sm font-semibold border-b-2 whitespace-nowrap cursor-pointer transition-all flex items-center gap-1.5 ${productFilter === 'low' ? 'border-orange-500 text-orange-500' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                    库存告急
+                    {products.filter(p => p.status === 1 && p.stock <= 5 && p.stock > 0).length > 0 && (
+                      <span className="h-1.5 w-1.5 rounded-full bg-red-500"></span>
+                    )}
+                    <span className="text-xs opacity-70">{products.filter(p => p.status === 1 && p.stock <= 5 && p.stock > 0).length}</span>
+                  </a>
+                  <a onClick={() => { setProductFilter('offline'); fetchData(); }} className={`pb-3 text-sm font-semibold border-b-2 whitespace-nowrap cursor-pointer transition-all ${productFilter === 'offline' ? 'border-slate-600 text-slate-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                    已下架 <span className="text-xs ml-1 opacity-70">{products.filter(p => p.status === 0 || p.stock === 0).length}</span>
+                  </a>
+                </nav>
+              </header>
+
               {apiError && (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
                   <Icon name="wifi_off" clazz="text-red-400 mt-0.5" />
@@ -772,7 +1080,7 @@ export default function App() {
                     <p className="text-sm font-bold text-red-700">无法连接到服务器</p>
                     <p className="text-xs text-red-500 mt-0.5">请确认 Node 服务正在运行（端口 3000）</p>
                     <button
-                      onClick={() => { const API_BASE = `http://${window.location.hostname}:3000/api`; fetch(`${API_BASE}/products?showAll=1`).then(r => r.json()).then(d => { if (d.success) { setProducts(d.data); setApiError(false); } }); }}
+                      onClick={() => fetchData()}
                       className="mt-2 text-xs text-red-600 font-bold underline"
                     >点击重试</button>
                   </div>
@@ -797,7 +1105,7 @@ export default function App() {
                     <div key={product.id} className={`bg-white rounded-xl p-4 shadow-sm border border-slate-100 ${isOffline ? 'opacity-80' : ''}`}>
                       <div className="flex gap-4">
                         <div className={`h-24 w-24 rounded-lg bg-slate-100 flex-shrink-0 overflow-hidden border border-slate-100 ${isOffline ? 'grayscale' : ''}`}>
-                          <img className="w-full h-full object-cover" src={product.cover_image || 'https://via.placeholder.com/150'} alt={product.name} />
+                          <img className="w-full h-full object-cover" src={getAssetUrl(product.cover_image) || 'https://via.placeholder.com/150'} alt={product.name} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start">
@@ -865,18 +1173,10 @@ export default function App() {
                   </div>
                 )}
 
-              {/* Add sticky FAB button for mobile layout */}
-              <div className="fixed bottom-24 lg:bottom-12 right-6 lg:right-auto lg:left-[calc(50%+100px)] z-50">
-                <button className="h-14 w-14 rounded-full bg-primary-dark text-white shadow-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform" onClick={() => handleEdit()}>
-                  <Icon name="add" clazz="text-2xl" />
-                </button>
-              </div>
-
+              {/* Removed sticky FAB button as it's now in the header */}
             </div>
           )}
-
         </main>
-
         {/* Bottom Navigation */}
         <footer className="flex-none bg-white/90 backdrop-blur-lg border-t border-slate-200 px-2 pb-8 sm:pb-6 pt-2 z-20 shadow-[0_-10px_20px_rgba(0,0,0,0.02)]">
           <div className="flex items-center justify-around drop-shadow pt-2">
@@ -902,12 +1202,12 @@ export default function App() {
               <span className={`text-[10px] ${activeTab === 'products' ? 'font-bold' : 'font-medium'}`}>商品</span>
               {activeTab === 'products' && <div className="absolute top-2 right-4 w-1.5 h-1.5 bg-primary-dark rounded-full"></div>}
             </button>
-            <button
+            {/* <button
               className="flex flex-col items-center gap-1 px-4 py-2 text-slate-400 hover:text-primary transition-colors"
             >
               <Icon name="settings" />
               <span className="text-[10px] font-medium">设置</span>
-            </button>
+            </button> */}
           </div>
         </footer>
 
@@ -931,7 +1231,7 @@ export default function App() {
                 {/* Product Head info bar */}
                 <div className="bg-white rounded-xl p-6 mb-6 border border-slate-100 shadow-sm flex items-center gap-6">
                   <div className="group relative w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-slate-50 border border-slate-100 cursor-pointer transition-all hover:ring-2 hover:ring-primary/20">
-                    <img src={currentProduct.cover_image || '/assets/avatar.jpg'} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                    <img src={getAssetUrl(currentProduct.cover_image || '/assets/avatar.jpg')} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
                       <Icon name="edit" clazz="text-white text-xl" />
                       <span className="text-[10px] text-white font-medium">修改图片</span>
@@ -961,20 +1261,21 @@ export default function App() {
                 <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm space-y-6">
 
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-slate-600">商品名称</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2.5">
+                      <label className="text-xs font-bold text-slate-400 ml-1 uppercase tracking-wider">商品名称</label>
                       <input
-                        className="w-full py-2 px-3 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+                        className="w-full py-4 px-5 border border-slate-200 rounded-2xl text-slate-900 font-bold bg-slate-50 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition placeholder:font-normal"
                         type="text"
+                        placeholder="请输入商品名称"
                         value={currentProduct.name}
                         onChange={e => setCurrentProduct({ ...currentProduct, name: e.target.value })}
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-slate-600">商品编码 (SKU)</label>
+                    <div className="space-y-2.5">
+                      <label className="text-xs font-bold text-slate-400 ml-1 uppercase tracking-wider">商品编码 (SKU)</label>
                       <input
-                        className="w-full py-2 px-3 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+                        className="w-full py-4 px-5 border border-slate-200 rounded-2xl text-slate-900 font-bold bg-slate-50 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition font-mono uppercase"
                         type="text"
                         placeholder="如: NF-E001"
                         value={currentProduct.sku || ''}
@@ -983,10 +1284,29 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-semibold text-slate-600">商品副标题</label>
+                  <div className="space-y-4">
+                    <label className="text-xs font-bold text-slate-400 ml-1 uppercase tracking-wider">所属品类</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {categories.map(c => {
+                        const isSelected = (currentProduct.category_id || (categories[0]?.id || 1)) === c.id;
+                        return (
+                          <div
+                            key={c.id}
+                            onClick={() => setCurrentProduct({ ...currentProduct, category_id: c.id })}
+                            className={`px-4 py-3.5 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-center text-center ${isSelected ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' : 'bg-white border-slate-100 text-slate-600 hover:border-slate-200'
+                              }`}
+                          >
+                            <span className="text-sm font-bold tracking-tight">{c.name}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    <label className="text-xs font-bold text-slate-400 ml-1 uppercase tracking-wider">商品副标题</label>
                     <input
-                      className="w-full py-2 px-3 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition"
+                      className="w-full py-4 px-5 border border-slate-200 rounded-2xl text-slate-900 font-bold bg-slate-50 focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition"
                       type="text"
                       placeholder="如: The Essence of Tranquility"
                       value={currentProduct.subtitle || ''}
@@ -1104,7 +1424,7 @@ export default function App() {
 
                   {/* Save action inside the scroller wrapper */}
                   <div className="pt-2 pb-6">
-                    <button onClick={handleSave} className="w-full bg-[#2f5151] hover:bg-[#1f3a3a] text-white font-bold py-4 rounded-xl shadow-lg shadow-[#2f5151]/20 transition-all transform hover:scale-[1.01] active:scale-[0.99]">
+                    <button onClick={handleSave} className="w-full bg-[#2f5151] hover:bg-[#1f3a3a] text-white text-base font-bold py-5 rounded-2xl shadow-xl shadow-[#2f5151]/25 transition-all transform hover:scale-[1.01] active:scale-[0.97]">
                       保存修改
                     </button>
                   </div>
@@ -1210,254 +1530,605 @@ export default function App() {
       }
 
       {/* Order Detail Modal */}
-      {isOrderDetailOpen && currentOrderDetail && (
-        <div className="fixed inset-0 bg-white z-[90] flex flex-col animate-in slide-in-from-right duration-300">
-          <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between z-10">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setIsOrderDetailOpen(false)} className="p-1 -ml-1 hover:bg-slate-100 rounded-full flex items-center justify-center transition">
-                <Icon name="arrow_back" clazz="text-slate-500" />
-              </button>
-              <h2 className="text-lg font-bold">订单详情</h2>
-            </div>
-            <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${currentOrderDetail.status === 1 ? 'bg-emerald-100 text-emerald-700' :
-              currentOrderDetail.status === 4 ? 'bg-red-100 text-red-700' :
-                currentOrderDetail.status === 5 ? 'bg-slate-100 text-slate-500' :
-                  currentOrderDetail.status === 0 ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'
-              }`}>
-              {currentOrderDetail.status === 1 ? '待发货' :
-                currentOrderDetail.status === 0 ? '待付款' :
-                  currentOrderDetail.status === 4 ? '售后申请' :
-                    currentOrderDetail.status === 5 ? '已退款' : '已完成'}
-            </div>
-          </header>
-
-          <main className="flex-1 overflow-y-auto bg-[#fcfaf9]">
-            <div className="bg-white border-b border-slate-100 p-6 mb-3">
-              <div className="flex flex-col gap-1 mb-4">
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none">Order Status</p>
-                <h3 className="text-xl font-bold text-slate-900 leading-tight">
-                  {currentOrderDetail.status === 0 ? '待付款' :
-                    currentOrderDetail.status === 1 ? '待发货' :
-                      currentOrderDetail.status === 4 ? '售后处理中' :
-                        currentOrderDetail.status === 5 ? '已完成退款' : '订单已完成'}
-                </h3>
-                <p className="text-xs text-slate-500">
-                  {currentOrderDetail.status === 0 ? '订单已创建，等待客户支付。' :
-                    currentOrderDetail.status === 1 ? '客户已支付，请尽快安排仓库进行发货。' :
-                      currentOrderDetail.status === 4 ? '客户已发起退款申请，请及时处理。' :
-                        currentOrderDetail.status === 5 ? '该订单已完成退款处理，交易关闭。' : '订单已顺利交付，感谢您的服务。'}
-                </p>
+      {
+        isOrderDetailOpen && currentOrderDetail && (
+          <div className="fixed inset-0 bg-white z-[90] flex flex-col animate-in slide-in-from-right duration-300">
+            <header className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between z-10">
+              <div className="flex items-center gap-3">
+                <button onClick={() => setIsOrderDetailOpen(false)} className="p-1 -ml-1 hover:bg-slate-100 rounded-full flex items-center justify-center transition">
+                  <Icon name="arrow_back" clazz="text-slate-500" />
+                </button>
+                <h2 className="text-lg font-bold">订单详情</h2>
               </div>
-
-              <div className="grid grid-cols-2 gap-x-4 gap-y-4 py-4 border-t border-slate-50">
-                <div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase">订单编号</p>
-                  <p className="text-xs font-bold text-slate-800">{currentOrderDetail.order_no || `#${currentOrderDetail.id}`}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase">支付时间</p>
-                  <p className="text-xs font-bold text-slate-800">{currentOrderDetail.pay_time || new Date(currentOrderDetail.create_time).toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase">支付方式</p>
-                  <p className="text-xs font-bold text-slate-800">微信支付</p>
-                </div>
-                <div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase">下单渠道</p>
-                  <p className="text-xs font-bold text-slate-800">微信小程序</p>
-                </div>
+              <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${currentOrderDetail.status === 1 ? 'bg-emerald-100 text-emerald-700' :
+                currentOrderDetail.status === 4 ? 'bg-red-100 text-red-700' :
+                  currentOrderDetail.status === 5 ? 'bg-slate-100 text-slate-500' :
+                    currentOrderDetail.status === 0 ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-500'
+                }`}>
+                {currentOrderDetail.status === 1 ? '待发货' :
+                  currentOrderDetail.status === 0 ? '待付款' :
+                    currentOrderDetail.status === 4 ? '售后申请' :
+                      currentOrderDetail.status === 5 ? '已退款' : '已完成'}
               </div>
-            </div>
+            </header>
 
-            {/* Shipping Address */}
-            <div className="bg-white border-y border-slate-100 p-6 mb-3">
-              <div className="flex items-center gap-2 mb-3">
-                <Icon name="local_shipping" clazz="text-primary text-xl" />
-                <h3 className="text-sm font-bold">收货人信息</h3>
-              </div>
-              {currentOrderDetail.recipient ? (
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                  <div className="flex justify-between items-start mb-2">
-                    <p className="font-bold text-slate-900">{currentOrderDetail.recipient}</p>
-                    <p className="text-xs font-bold text-primary">{currentOrderDetail.phone}</p>
-                  </div>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    {currentOrderDetail.province} {currentOrderDetail.city} {currentOrderDetail.district} {currentOrderDetail.address_detail}
+            <main className="flex-1 overflow-y-auto bg-[#fcfaf9]">
+              <div className="bg-white border-b border-slate-100 p-6 mb-3">
+                <div className="flex flex-col gap-1 mb-4">
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none">Order Status</p>
+                  <h3 className="text-xl font-bold text-slate-900 leading-tight">
+                    {currentOrderDetail.status === 0 ? '待付款' :
+                      currentOrderDetail.status === 1 ? '待发货' :
+                        currentOrderDetail.status === 4 ? '售后处理中' :
+                          currentOrderDetail.status === 5 ? '已完成退款' : '订单已完成'}
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    {currentOrderDetail.status === 0 ? '订单已创建，等待客户支付。' :
+                      currentOrderDetail.status === 1 ? '客户已支付，请尽快安排仓库进行发货。' :
+                        currentOrderDetail.status === 4 ? '客户已发起退款申请，请及时处理。' :
+                          currentOrderDetail.status === 5 ? '该订单已完成退款处理，交易关闭。' : '订单已顺利交付，感谢您的服务。'}
                   </p>
                 </div>
-              ) : (
-                <p className="text-xs text-slate-400 italic">客户尚未填写收货地址</p>
-              )}
-            </div>
 
-            {/* Product Items */}
-            <div className="bg-white border-y border-slate-100 p-6 mb-3">
-              <h3 className="text-sm font-bold mb-4">商品清单</h3>
-              <div className="space-y-4">
-                {currentOrderDetail.items?.map((item: any, idx: number) => (
-                  <div key={idx} className="flex gap-4">
-                    <div className="size-16 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden flex-shrink-0">
-                      <img src={item.cover_image} className="size-full object-cover" />
-                    </div>
-                    <div className="flex-1 min-w-0 py-0.5">
-                      <p className="text-xs font-bold text-slate-900 truncate">{item.product_name}</p>
-                      <p className="text-[10px] text-slate-400 mt-1 uppercase">SKU: {item.sku || 'N/A'}</p>
-                      <div className="flex justify-between items-center mt-auto">
-                        <p className="text-xs text-slate-900">¥{item.price} x {item.quantity}</p>
-                      </div>
-                    </div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-4 py-4 border-t border-slate-50">
+                  <div>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase">订单编号</p>
+                    <p className="text-xs font-bold text-slate-800">{currentOrderDetail.order_no || `#${currentOrderDetail.id}`}</p>
                   </div>
-                ))}
-              </div>
-              <div className="mt-6 pt-4 border-t border-slate-50 flex justify-between items-center">
-                <p className="text-xs text-slate-500 font-medium">共计 {currentOrderDetail.items?.length || 0} 件商品</p>
-                <p className="font-bold text-primary">合计 ¥{currentOrderDetail.total_amount}</p>
-              </div>
-            </div>
-
-            {/* Refund Info Section */}
-            {currentOrderDetail.refund_no && (
-              <div className="bg-red-50/50 border-y border-red-100 p-6 mb-3">
-                <div className="flex items-center gap-2 mb-4">
-                  <Icon name="assignment_return" clazz="text-red-600 text-xl" />
-                  <h3 className="text-sm font-bold text-red-900">售后退款信息</h3>
-                </div>
-                <div className="bg-white rounded-xl p-4 border border-red-100 shadow-sm space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase">退款单号</p>
-                      <p className="text-xs font-bold text-slate-800">{currentOrderDetail.refund_no}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase">退款金额</p>
-                      <p className="text-xs font-bold text-red-600">¥{currentOrderDetail.refund_amount}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase">退款原因</p>
-                      <p className="text-xs font-medium text-slate-700">{currentOrderDetail.refund_reason}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase">申请时间</p>
-                      <p className="text-xs font-medium text-slate-700">{new Date(currentOrderDetail.refund_time).toLocaleString()}</p>
-                    </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase">支付时间</p>
+                    <p className="text-xs font-bold text-slate-800">{currentOrderDetail.pay_time || new Date(currentOrderDetail.create_time).toLocaleString()}</p>
                   </div>
-                  {currentOrderDetail.status === 4 && (
-                    <div className="pt-4 border-t border-slate-50 flex gap-3">
-                      <button
-                        className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700 transition"
-                        onClick={approveRefund}
-                      >
-                        同意退款
-                      </button>
-                      <button
-                        className="flex-1 py-2.5 bg-white text-slate-600 border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-50 transition"
-                        onClick={rejectRefund}
-                      >
-                        拒绝申请
-                      </button>
-                    </div>
-                  )}
-                  {currentOrderDetail.status === 5 && (
-                    <div className="pt-4 border-t border-slate-50">
-                      <div className="w-full py-2 bg-emerald-50 text-emerald-700 rounded-lg text-center text-xs font-bold">
-                        退款成功 (已结案)
-                      </div>
-                    </div>
-                  )}
-                  {currentOrderDetail.refund_status === 3 && currentOrderDetail.status !== 4 && (
-                    <div className="pt-4 border-t border-slate-50">
-                      <div className="w-full py-2 bg-slate-100 text-slate-500 rounded-lg text-center text-xs font-bold">
-                        售后申请已拒绝
-                      </div>
-                    </div>
-                  )}
+                  <div>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase">支付方式</p>
+                    <p className="text-xs font-bold text-slate-800">微信支付</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase">下单渠道</p>
+                    <p className="text-xs font-bold text-slate-800">微信小程序</p>
+                  </div>
                 </div>
               </div>
-            )}
 
-            {/* Shipping Info Display */}
-            {currentOrderDetail.status >= 2 && currentOrderDetail.tracking_no && (
-              <div className="bg-emerald-50/50 border-y border-emerald-100 p-6 mb-8">
-                <div className="flex items-center gap-2 mb-4">
-                  <Icon name="local_shipping" clazz="text-emerald-600 text-xl" />
-                  <h3 className="text-sm font-bold text-emerald-900">物流发货信息</h3>
+              {/* Shipping Address */}
+              <div className="bg-white border-y border-slate-100 p-6 mb-3">
+                <div className="flex items-center gap-2 mb-3">
+                  <Icon name="local_shipping" clazz="text-primary text-xl" />
+                  <h3 className="text-sm font-bold">收货人信息</h3>
                 </div>
-                <div className="bg-white rounded-xl p-4 border border-emerald-100 shadow-sm space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase">物流公司</p>
-                      <p className="text-xs font-bold text-slate-800">{currentOrderDetail.logistics_company}</p>
+                {currentOrderDetail.recipient ? (
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                    <div className="flex justify-between items-start mb-2">
+                      <p className="font-bold text-slate-900">{currentOrderDetail.recipient}</p>
+                      <p className="text-xs font-bold text-primary">{currentOrderDetail.phone}</p>
                     </div>
-                    <div>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase">快递单号</p>
-                      <p className="text-xs font-bold text-primary">{currentOrderDetail.tracking_no}</p>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      {currentOrderDetail.province} {currentOrderDetail.city} {currentOrderDetail.district} {currentOrderDetail.address_detail}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-400 italic">客户尚未填写收货地址</p>
+                )}
+              </div>
+
+              {/* Product Items */}
+              <div className="bg-white border-y border-slate-100 p-6 mb-3">
+                <h3 className="text-sm font-bold mb-4">商品清单</h3>
+                <div className="space-y-4">
+                  {currentOrderDetail.items?.map((item: any, idx: number) => (
+                    <div key={idx} className="flex gap-4">
+                      <div className="size-16 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden flex-shrink-0">
+                        <img src={getAssetUrl(item.cover_image)} className="size-full object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0 py-0.5">
+                        <p className="text-xs font-bold text-slate-900 truncate">{item.product_name}</p>
+                        <p className="text-[10px] text-slate-400 mt-1 uppercase">SKU: {item.sku || 'N/A'}</p>
+                        <div className="flex justify-between items-center mt-auto">
+                          <p className="text-xs text-slate-900">¥{item.price} x {item.quantity}</p>
+                        </div>
+                      </div>
                     </div>
-                    {currentOrderDetail.ship_time && (
-                      <div className="col-span-2">
-                        <p className="text-[10px] text-slate-400 font-bold uppercase">发货时间</p>
-                        <p className="text-xs font-medium text-slate-700">{new Date(currentOrderDetail.ship_time).toLocaleString()}</p>
+                  ))}
+                </div>
+                <div className="mt-6 pt-4 border-t border-slate-50 flex justify-between items-center">
+                  <p className="text-xs text-slate-500 font-medium">共计 {currentOrderDetail.items?.length || 0} 件商品</p>
+                  <p className="font-bold text-primary">合计 ¥{currentOrderDetail.total_amount}</p>
+                </div>
+              </div>
+
+              {/* Refund Info Section */}
+              {currentOrderDetail.refund_no && (
+                <div className="bg-red-50/50 border-y border-red-100 p-6 mb-3">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Icon name="assignment_return" clazz="text-red-600 text-xl" />
+                    <h3 className="text-sm font-bold text-red-900">售后退款信息</h3>
+                  </div>
+                  <div className="bg-white rounded-xl p-4 border border-red-100 shadow-sm space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">退款单号</p>
+                        <p className="text-xs font-bold text-slate-800">{currentOrderDetail.refund_no}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">退款金额</p>
+                        <p className="text-xs font-bold text-red-600">¥{currentOrderDetail.refund_amount}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">退款原因</p>
+                        <p className="text-xs font-medium text-slate-700">{currentOrderDetail.refund_reason}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">申请时间</p>
+                        <p className="text-xs font-medium text-slate-700">{new Date(currentOrderDetail.refund_time).toLocaleString()}</p>
+                      </div>
+                    </div>
+                    {currentOrderDetail.status === 4 && (
+                      <div className="pt-4 border-t border-slate-50 flex gap-3">
+                        <button
+                          className="flex-1 py-4 bg-red-600 text-white rounded-xl text-sm font-bold hover:bg-red-700 active:scale-95 transition shadow-lg shadow-red-600/10"
+                          onClick={approveRefund}
+                        >
+                          同意退款
+                        </button>
+                        <button
+                          className="flex-1 py-4 bg-white text-slate-600 border border-slate-200 rounded-xl text-sm font-bold hover:bg-slate-50 active:scale-95 transition"
+                          onClick={rejectRefund}
+                        >
+                          拒绝申请
+                        </button>
+                      </div>
+                    )}
+                    {currentOrderDetail.status === 5 && (
+                      <div className="pt-4 border-t border-slate-50">
+                        <div className="w-full py-2 bg-emerald-50 text-emerald-700 rounded-lg text-center text-xs font-bold">
+                          退款成功 (已结案)
+                        </div>
+                      </div>
+                    )}
+                    {currentOrderDetail.refund_status === 3 && currentOrderDetail.status !== 4 && (
+                      <div className="pt-4 border-t border-slate-50">
+                        <div className="w-full py-2 bg-slate-100 text-slate-500 rounded-lg text-center text-xs font-bold">
+                          售后申请已拒绝
+                        </div>
                       </div>
                     )}
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Delivery Action Info */}
-            {currentOrderDetail.status === 1 && (
-              <div id="shipping-section" className="bg-white border-y border-slate-100 p-6 mb-8">
-                <div className="flex items-center gap-2 mb-4">
-                  <Icon name="edit_document" clazz="text-primary text-xl" />
-                  <h3 className="text-sm font-bold">发货信息</h3>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] text-slate-400 font-bold uppercase">物流公司</label>
-                    <select
-                      className="w-full px-4 py-2.5 rounded-lg border border-slate-100 bg-slate-50 text-xs font-bold focus:ring-2 focus:ring-primary outline-none"
-                      value={shippingForm.logistics_company}
-                      onChange={e => setShippingForm({ ...shippingForm, logistics_company: e.target.value })}
-                    >
-                      <option>顺丰速运</option>
-                      <option>中通快递</option>
-                      <option>圆通速递</option>
-                      <option>韵达快递</option>
-                      <option>京东物流</option>
-                    </select>
+              {/* Shipping Info Display */}
+              {currentOrderDetail.status >= 2 && currentOrderDetail.tracking_no && (
+                <div className="bg-emerald-50/50 border-y border-emerald-100 p-6 mb-8">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Icon name="local_shipping" clazz="text-emerald-600 text-xl" />
+                    <h3 className="text-sm font-bold text-emerald-900">物流发货信息</h3>
                   </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] text-slate-400 font-bold uppercase">快递单号</label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="请输入或扫描运单号"
-                        className="w-full px-4 py-2.5 rounded-lg border border-slate-100 bg-slate-50 text-xs font-bold focus:ring-2 focus:ring-primary outline-none"
-                        value={shippingForm.tracking_no}
-                        onChange={e => setShippingForm({ ...shippingForm, tracking_no: e.target.value })}
-                      />
-                      <Icon name="qr_code_scanner" clazz="absolute right-3 top-2.5 text-slate-400" />
+                  <div className="bg-white rounded-xl p-4 border border-emerald-100 shadow-sm space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">物流公司</p>
+                        <p className="text-xs font-bold text-slate-800">{currentOrderDetail.logistics_company}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-slate-400 font-bold uppercase">快递单号</p>
+                        <p className="text-xs font-bold text-primary">{currentOrderDetail.tracking_no}</p>
+                      </div>
+                      {currentOrderDetail.ship_time && (
+                        <div className="col-span-2">
+                          <p className="text-[10px] text-slate-400 font-bold uppercase">发货时间</p>
+                          <p className="text-xs font-medium text-slate-700">{new Date(currentOrderDetail.ship_time).toLocaleString()}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
+              )}
 
-                <div className="mt-8">
-                  <button
-                    className="w-full py-4 bg-primary text-white rounded-xl font-bold shadow-xl shadow-primary/20 hover:bg-[#2f5151] hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
-                    onClick={shipOrder}
-                  >
-                    <Icon name="send" />
-                    确认发货
-                  </button>
-                  <p className="text-center text-[10px] text-slate-400 mt-4 leading-relaxed">
-                    确认后将同步更新订单状态，并通知客户
-                  </p>
+              {/* Delivery Action Info */}
+              {currentOrderDetail.status === 1 && (
+                <div id="shipping-section" className="bg-white border-y border-slate-100 p-6 mb-8">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Icon name="edit_document" clazz="text-primary text-xl" />
+                    <h3 className="text-sm font-bold">发货信息</h3>
+                  </div>
+                  <div className="space-y-8">
+                    <div className="flex flex-col gap-3">
+                      <label className="text-sm text-slate-400 font-bold uppercase tracking-widest ml-1">物流公司</label>
+                      <select
+                        className="w-full px-5 py-5 rounded-2xl border border-slate-100 bg-slate-50 text-base font-bold focus:ring-4 focus:ring-primary/10 transition-all outline-none appearance-none"
+                        value={shippingForm.logistics_company}
+                        onChange={e => setShippingForm({ ...shippingForm, logistics_company: e.target.value })}
+                      >
+                        <option>顺丰速运</option>
+                        <option>中通快递</option>
+                        <option>圆通速递</option>
+                        <option>韵达快递</option>
+                        <option>京东物流</option>
+                      </select>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      <label className="text-sm text-slate-400 font-bold uppercase tracking-widest ml-1">快递单号</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="请输入或扫描运单号"
+                          className={`w-full px-5 py-5 rounded-2xl border ${shippingError ? 'border-red-500 bg-red-50/30' : 'border-slate-100 bg-slate-50'} text-base font-bold focus:ring-4 ${shippingError ? 'focus:ring-red-100' : 'focus:ring-primary/10'} transition-all outline-none`}
+                          value={shippingForm.tracking_no}
+                          onChange={e => {
+                            setShippingForm({ ...shippingForm, tracking_no: e.target.value });
+                            if (shippingError) setShippingError('');
+                          }}
+                        />
+                        {shippingError && (
+                          <p className="text-[11px] text-red-500 font-bold mt-2 ml-1 animate-pulse">
+                            ⚠ {shippingError}
+                          </p>
+                        )}
+                        <Icon name="qr_code_scanner" clazz="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 text-2xl" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-8">
+                    <button
+                      className="w-full py-5 bg-primary text-white rounded-2xl text-lg font-bold shadow-2xl shadow-primary/30 hover:bg-[#2f5151] hover:scale-[1.01] active:scale-[0.97] transition-all flex items-center justify-center gap-3"
+                      onClick={shipOrder}
+                    >
+                      <Icon name="send" />
+                      确认发货
+                    </button>
+                    <p className="text-center text-[10px] text-slate-400 mt-4 leading-relaxed">
+                      确认后将同步更新订单状态，并通知客户
+                    </p>
+                  </div>
+                </div>
+              )}
+            </main>
+          </div>
+        )
+      }
+
+      {/* CATEGORY MANAGER MODAL */}
+      {
+        isCategoryManagerOpen && (
+          <div className="absolute inset-0 bg-white z-[60] flex flex-col animate-in slide-in-from-right duration-300">
+            <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-100 px-4 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span
+                  className="material-symbols-outlined text-slate-500 cursor-pointer p-1 active:bg-slate-100 rounded-full transition-colors"
+                  onClick={() => {
+                    if (currentCategory) {
+                      setCurrentCategory(null);
+                      setCategoryError('');
+                    } else {
+                      setIsCategoryManagerOpen(false);
+                    }
+                  }}
+                >
+                  arrow_back
+                </span>
+                <div className="flex flex-col">
+                  <h1 className="text-xl font-bold tracking-tight text-slate-900 leading-tight">品类管理</h1>
+                  <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Category System</span>
                 </div>
               </div>
-            )}
-          </main>
-        </div>
-      )}
+              <button
+                onClick={() => openCategoryEditor()}
+                className="size-11 rounded-2xl bg-[#2f5151] text-white flex items-center justify-center shadow-lg active:scale-90 transition-transform"
+              >
+                <Icon name="add" />
+              </button>
+            </header>
 
-    </div>
+            <main className="flex-1 overflow-y-auto w-full px-5 py-6 bg-[#fcfaf9]">
+              {currentCategory ? (
+                /* Category Form */
+                <div className="space-y-6 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="bg-white rounded-[32px] p-8 border border-slate-100 shadow-xl shadow-slate-900/5">
+                    <h2 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-8 flex items-center gap-2">
+                      <span className="w-4 h-[1px] bg-slate-200"></span>
+                      {currentCategory.id ? '品类详情' : '新增品类'}
+                    </h2>
+
+                    <div className="flex flex-col items-center mb-8">
+                      <div className="group relative size-32 rounded-3xl overflow-hidden bg-slate-50 border border-slate-100 cursor-pointer shadow-inner">
+                        {currentCategory.image ? (
+                          <img src={getAssetUrl(currentCategory.image)} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex flex-col items-center justify-center text-slate-300">
+                            <Icon name="image" clazz="text-3xl mb-1" />
+                            <span className="text-[10px] font-bold uppercase tracking-wider">上传图片</span>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Icon name="edit" clazz="text-white" />
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                          onChange={handleCategoryImageUpload}
+                        />
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-3 font-medium uppercase tracking-widest text-center">建议尺寸: 500x500px</p>
+                    </div>
+
+                    <div className="space-y-8">
+                      <div className="grid grid-cols-1 gap-8">
+                        <div className="space-y-3">
+                          <label className="text-xs font-bold text-slate-400 ml-1 uppercase">分类名称</label>
+                          <input
+                            autoFocus
+                            className={`w-full px-6 py-5 rounded-2xl border ${categoryError ? 'border-red-400 bg-red-50/50' : 'border-slate-100 bg-slate-50'} text-base font-bold outline-none focus:ring-4 ${categoryError ? 'focus:ring-red-100' : 'focus:ring-primary/10'} transition-all placeholder:font-normal`}
+                            placeholder="如：香道、茶礼"
+                            value={currentCategory.name}
+                            onChange={e => {
+                              setCurrentCategory({ ...currentCategory, name: e.target.value });
+                              if (categoryError) setCategoryError('');
+                            }}
+                          />
+                          {categoryError && (
+                            <div className="flex items-center gap-1.5 mt-2 ml-1 animate-in slide-in-from-top-1 duration-200">
+                              <Icon name="error" clazz="text-red-500 text-xs" />
+                              <span className="text-xs text-red-500 font-bold tracking-tight">{categoryError}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-3">
+                          <label className="text-xs font-bold text-slate-400 ml-1 uppercase">副标题 / 英文名</label>
+                          <input
+                            className="w-full px-6 py-5 rounded-2xl border border-slate-100 bg-slate-50 text-base font-bold outline-none focus:ring-4 focus:ring-primary/10 transition-all placeholder:font-normal"
+                            placeholder="如：Incense Way"
+                            value={currentCategory.subtitle || ''}
+                            onChange={e => setCurrentCategory({ ...currentCategory, subtitle: e.target.value })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-3">
+                          <label className="text-xs font-bold text-slate-400 ml-1 uppercase">排序权重</label>
+                          <input
+                            type="number"
+                            className="w-full px-6 py-5 rounded-2xl border border-slate-100 bg-slate-50 text-base font-bold outline-none focus:ring-4 focus:ring-primary/10 transition-all font-mono"
+                            value={currentCategory.sort_order}
+                            onChange={e => setCurrentCategory({ ...currentCategory, sort_order: Number(e.target.value) })}
+                          />
+                        </div>
+                        <div className="space-y-3">
+                          <label className="text-xs font-bold text-slate-400 ml-1 uppercase">当前状态</label>
+                          <select
+                            className="w-full px-6 py-5 rounded-2xl border border-slate-100 bg-slate-50 text-base font-bold outline-none focus:ring-4 focus:ring-primary/10 transition-all appearance-none"
+                            value={currentCategory.status}
+                            onChange={e => setCurrentCategory({ ...currentCategory, status: Number(e.target.value) })}
+                          >
+                            <option value={1}>启用显示</option>
+                            <option value={0}>禁用隐藏</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Homepage display toggle */}
+                      <div className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100/50 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-1">
+                            <h4 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                              首页推荐展示
+                              {currentCategory.is_top === 1 && (
+                                <span className="bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full text-[9px] uppercase tracking-wider font-black border border-amber-200/50 scale-90">Active</span>
+                              )}
+                            </h4>
+                            <p className="text-[10px] text-slate-400 font-medium leading-relaxed">
+                              设置后该品类将以图文形式在小程序首页“热门品类”板块优先显示，最多支持4个。
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              const newVal = currentCategory.is_top === 1 ? 0 : 1;
+                              if (newVal === 1) {
+                                const activeTops = categories.filter(c => c.is_top === 1 && c.id !== currentCategory.id).length;
+                                if (activeTops >= 4) {
+                                  showToast('首页推荐位已满（最多4个）', 'error');
+                                  return;
+                                }
+                              }
+                              setCurrentCategory({ ...currentCategory, is_top: newVal });
+                            }}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ring-offset-2 focus:ring-2 focus:ring-primary/20 ${currentCategory.is_top === 1 ? 'bg-primary shadow-lg shadow-primary/20' : 'bg-slate-200'}`}
+                          >
+                            <span
+                              className={`inline-block size-4 transform rounded-full bg-white transition-transform ${currentCategory.is_top === 1 ? 'translate-x-6' : 'translate-x-1'}`}
+                            />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* PRODUCT SELECTION SECTION */}
+                    <div className="bg-white rounded-[32px] p-8 border border-slate-100 shadow-xl shadow-slate-900/5 mt-6">
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                          <span className="w-4 h-[1px] bg-slate-200"></span>
+                          品类关联商品 ({selectedProductIds.length})
+                        </h2>
+                        <button
+                          onClick={() => setIsProductPickerOpen(!isProductPickerOpen)}
+                          className="text-[10px] font-bold text-primary border border-primary/20 px-3 py-1.5 rounded-full bg-primary/5 active:bg-primary/10 transition-colors uppercase tracking-widest"
+                        >
+                          {isProductPickerOpen ? '折叠列表' : '批量调整'}
+                        </button>
+                      </div>
+
+                      {isProductPickerOpen ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar animate-in fade-in slide-in-from-top-2 duration-300">
+                          {products.map(p => {
+                            const isSelected = selectedProductIds.includes(p.id);
+                            return (
+                              <div
+                                key={p.id}
+                                onClick={() => {
+                                  if (isSelected) {
+                                    setSelectedProductIds(selectedProductIds.filter(id => id !== p.id));
+                                  } else {
+                                    setSelectedProductIds([...selectedProductIds, p.id]);
+                                  }
+                                }}
+                                className={`flex items-center justify-between p-4 rounded-3xl border-2 transition-all cursor-pointer ${isSelected ? 'bg-primary/5 border-primary shadow-sm' : 'bg-slate-50 border-slate-100 hover:border-slate-200'
+                                  }`}
+                              >
+                                <div className="flex items-center gap-4">
+                                  <div className="size-14 rounded-2xl overflow-hidden bg-white border border-slate-100 shadow-sm">
+                                    <img src={getAssetUrl(p.cover_image || '/assets/avatar.jpg')} className="w-full h-full object-cover" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-base font-bold text-slate-800 truncate">{p.name}</p>
+                                    <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">SKU: {p.sku || 'N/A'}</p>
+                                  </div>
+                                </div>
+                                <div className={`size-8 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${isSelected ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' : 'border-slate-200 bg-white'
+                                  }`}>
+                                  {isSelected && <Icon name="check" clazz="text-lg font-bold" />}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-2 animate-in fade-in duration-300">
+                          {selectedProductIds.length > 0 ? (
+                            products.filter(p => selectedProductIds.includes(p.id)).slice(0, 5).map(p => (
+                              <div key={p.id} className="size-10 rounded-xl overflow-hidden border-2 border-white shadow-sm ring-1 ring-slate-100">
+                                <img src={getAssetUrl(p.cover_image || '/assets/avatar.jpg')} className="w-full h-full object-cover" />
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-xs text-slate-400 italic py-2 ml-1">当前暂无关联商品</p>
+                          )}
+                          {selectedProductIds.length > 5 && (
+                            <div className="size-10 rounded-xl bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-400 border-2 border-white shadow-sm ring-1 ring-slate-100">
+                              +{selectedProductIds.length - 5}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-3 pt-4">
+                    <div className="flex gap-4">
+                      <button
+                        onClick={() => handleSaveCategory()}
+                        className="flex-1 py-5 bg-primary text-white rounded-[24px] text-lg font-bold shadow-2xl shadow-primary/30 active:scale-95 transition-all"
+                      >
+                        保存修改
+                      </button>
+                      {currentCategory.id && (
+                        <button
+                          onClick={() => handleDeleteCategory(currentCategory.id)}
+                          className="px-6 py-5 bg-white text-red-500 rounded-[24px] text-lg font-bold active:scale-95 transition-all border border-red-50 text-center flex items-center justify-center"
+                        >
+                          <Icon name="delete" />
+                        </button>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => { setCurrentCategory(null); setCategoryError(''); }}
+                      className="w-full py-4 text-slate-400 font-bold text-sm tracking-widest active:text-slate-600 transition-colors"
+                    >
+                      取消并返回
+                    </button>
+                  </div>
+
+                  <p className="text-center text-[10px] text-slate-400 mt-4 leading-relaxed font-medium">
+                    修改分类名称可能会影响到小程序端导航的显示
+                  </p>
+                </div>
+              ) : (
+                /* Category List */
+                <div className="grid grid-cols-1 gap-6">
+                  {categories.map((c, idx) => (
+                    <div
+                      key={c.id}
+                      onClick={() => {
+                        openCategoryEditor(c);
+                      }}
+                      className="bg-white p-6 rounded-[28px] border border-slate-100 shadow-lg shadow-slate-900/5 flex items-center justify-between hover:border-primary/20 active:scale-[0.97] transition-all cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-5">
+                        <div className="size-14 rounded-2xl bg-slate-50 overflow-hidden flex items-center justify-center border border-slate-100 group-hover:bg-primary/5 group-hover:border-primary/20 transition-all duration-300">
+                          {c.image ? (
+                            <img src={getAssetUrl(c.image)} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-slate-300 font-bold text-xl">
+                              {idx + 1 < 10 ? `0${idx + 1}` : idx + 1}
+                            </span>
+                          )}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-bold text-slate-900 border-b-2 border-transparent group-hover:border-primary/30 transition-all">{c.name}</p>
+                            {c.is_top === 1 && (
+                              <div className="flex items-center justify-center bg-amber-50 border border-amber-200 text-amber-500 rounded text-[9px] px-1 font-bold">首页推荐</div>
+                            )}
+                          </div>
+                          {c.subtitle && <p className="text-[9px] text-slate-400 font-medium uppercase tracking-wider -mt-0.5">{c.subtitle}</p>}
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <span className={`size-1.5 rounded-full ${c.status === 1 ? 'bg-emerald-500' : 'bg-slate-300'}`}></span>
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                              {c.status === 1 ? 'Running' : 'Offline'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => handleToggleCategoryTop(e, c)}
+                          className={`flex items-center gap-1 px-3 py-1.5 rounded-full border transition-all duration-300 shadow-sm ${c.is_top === 1
+                            ? 'bg-amber-50 text-amber-500 border-amber-200 hover:bg-amber-100 hover:text-amber-600 shadow-amber-500/10'
+                            : 'bg-white text-slate-400 border-slate-100 hover:bg-slate-50'
+                            }`}
+                        >
+                          <Icon name={c.is_top === 1 ? 'bookmark_remove' : 'push_pin'} clazz="text-sm" />
+                          <span className="text-[10px] font-bold">{c.is_top === 1 ? '取消首页' : '首页显示'}</span>
+                        </button>
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-50 text-slate-400 group-hover:bg-primary group-hover:text-white border border-transparent group-hover:border-primary/20 shadow-sm transition-all duration-300">
+                          <span className="text-[10px] font-bold">详情</span>
+                          <Icon name="chevron_right" clazz="text-sm" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {categories.length === 0 && (
+                    <div className="text-center py-24 opacity-30 flex flex-col items-center">
+                      <div className="size-24 rounded-full bg-slate-200/50 flex items-center justify-center mb-6">
+                        <Icon name="category" clazz="text-5xl" />
+                      </div>
+                      <p className="text-sm font-bold tracking-[0.2em] uppercase">NO CATEGORIES</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </main>
+          </div>
+        )
+      }
+
+      {/* LIGHTWEIGHT TOAST */}
+      {
+        toast && (
+          <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[100] animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className={`px-6 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 backdrop-blur-md border ${toast.type === 'error' ? 'bg-red-500/90 text-white border-red-400' :
+              toast.type === 'info' ? 'bg-blue-500/90 text-white border-blue-400' :
+                'bg-[#2f5151]/95 text-white border-primary/20'
+              }`}>
+              <Icon name={toast.type === 'error' ? 'report' : toast.type === 'info' ? 'info' : 'check_circle'} clazz="text-xl" />
+              <span className="text-sm font-bold tracking-tight">{toast.message}</span>
+            </div>
+          </div>
+        )
+      }
+
+    </div >
   );
 }

@@ -11,7 +11,11 @@ Page({
     },
     fetchCart() {
         api.getCart().then(data => {
-            this.setData({ cartItems: data }, () => {
+            const enriched = (data || []).map(item => ({
+                ...item,
+                p_image: api.imgUrl(item.p_image)
+            }));
+            this.setData({ cartItems: enriched }, () => {
                 this.calculateTotal();
             });
         }).catch(console.error);

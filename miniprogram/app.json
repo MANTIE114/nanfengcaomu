@@ -13,7 +13,10 @@
     "pages/after_sales/apply/apply",
     "pages/after_sales/progress/progress",
     "pages/after_sales/details/details",
-    "pages/after_sales/receipt_success/receipt_success"
+    "pages/after_sales/receipt_success/receipt_success",
+    "pages/search/search",
+    "pages/collections/collections",
+    "pages/about/about"
   ],
   "window": {
     "backgroundTextStyle": "light",

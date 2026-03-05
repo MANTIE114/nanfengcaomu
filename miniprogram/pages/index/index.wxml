@@ -1,4 +1,8 @@
 <view class="container">
+  <!-- Search Overlay Button -->
+  <view class="search-btn-float" bindtap="goToSearch">
+    <icon type="search" size="18" color="white"></icon>
+  </view>
   <!-- Banner Section -->
   <view class="banner">
     <image class="banner-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaBP82_28p6mCz0TH1ErNHvcXhm2DvPoiRBfuzteat20yKt6JWrLVqnzYJpy7Xrx_rb9UESvQbvLtrLu-bNI9P7kwOz_hpoNiEZNGE8CSPNH5F_PAiHahrLm-UY0nDihP7gGpcBGV43NdNpwAyOrMwOBiTHUamFx7iQbZsjwPLaDmYjAUpSSRMoAywzvfi1PJearGuk3UT_Y1QEe54U_g9Vn3xcPTHTR0fx8UE4X0z0re4mAfoN6PpfU7T3HHXUhw95loDWwavyx0" mode="aspectFill"></image>
@@ -6,7 +10,7 @@
     <view class="banner-content">
       <view class="banner-text-box">
         <text class="banner-title text-3xl font-bold text-white">寻香访道</text>
-        <text class="banner-subtitle text-sm text-white mt-2 tracking-widest">The Essence of Tranquility</text>
+        <text class="banner-subtitle text-sm mt-2 tracking-widest">The Essence of Tranquility</text>
       </view>
     </view>
   </view>
@@ -20,36 +24,17 @@
       <text class="section-subtitle text-xs text-primary uppercase tracking-widest">Categories</text>
     </view>
     <view class="grid">
-      <view class="grid-item">
-        <image class="grid-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3Quce4Byrq82Wa30RMoSyAZ27TZNtembxKFPWcBev_t5i6LS9eoI1ODhN-jJIiFuqO69MdUF_eeOdrvetmeRcaIl3F4F3NEu2oUCnm2UUhztr_eRMh-urLkVVXTwrR8oIkzt2s7UeO1gruYi9IA3gBPWFsRlskAMmrYm-E7MFZIJoxpy2PzxQ77JvfcMyOepbafPl-oxD2tPe-TQr3ULOvRG89fq-M3GUz6IV_NODsUWpGUxuFSl40xVsSSOunAInD_yrK0UsgDg" mode="aspectFill"></image>
+      <view 
+        class="grid-item {{topCategories.length % 2 !== 0 && index === 0 ? 'grid-hero' : ''}}" 
+        wx:for="{{topCategories}}" 
+        wx:key="id" 
+        bindtap="goToCategoryPage" data-id="{{item.id}}"
+      >
+        <image class="grid-img" src="{{item.displayImage}}" mode="aspectFill"></image>
         <view class="grid-overlay"></view>
         <view class="grid-text">
-          <text class="grid-title text-base font-bold text-white">线香</text>
-          <text class="grid-desc text-white">Stick Incense</text>
-        </view>
-      </view>
-      <view class="grid-item">
-        <image class="grid-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsQE282vJcETqNCFJtUBVFI-2vdcfXSwG71dWi3HJr50pIv9AkABN2nVWSSh1ZFNQFU5XAO_KEdOBjFuw0ldihXVksr1HXgHxmmMaIpD-gvJHHA_iHiCUvLtDjbUczIZPCXKK1O7UOLsgdHdfI6edRuDuXdOo4OjcGTyKJApIyD0DPrNiegDMhILVp0KhY42bcJKgWy-84zjrBVr9h4gtdbtEs9oClzK_nloXK1b4awMNXho4yP3mRcheFwmA-rAgaumULLkgaWD0" mode="aspectFill"></image>
-        <view class="grid-overlay"></view>
-        <view class="grid-text">
-          <text class="grid-title text-base font-bold text-white">香薰</text>
-          <text class="grid-desc text-white">Aromatherapy</text>
-        </view>
-      </view>
-      <view class="grid-item">
-        <image class="grid-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDU_wRD-n8rplOIR3sVUaWdjfO5u6Frr4G7zPxHp9C7fkmaOWwNfd9AnnmyOLifXpG5RmWyNfulmsf93XqeobZj-kchv39Q8qeEmaowGAB7DHqeSN5Y5uerX9UheRDA1JGxfp_qsWq4yZWnZJM7iECK7KNC87IGSTkLOKVFPjQXFWAueWcY2-cwleyjxpLB-pEgRYOmUXW9U4xtwf9iWGwy700RKnZT2LDGGI6dMV_mCMiidPaDtHlJjuBoGu1pEMD7VqOIqs5bwjc" mode="aspectFill"></image>
-        <view class="grid-overlay"></view>
-        <view class="grid-text">
-          <text class="grid-title text-base font-bold text-white">香珠香牌</text>
-          <text class="grid-desc text-white">Incense Beads</text>
-        </view>
-      </view>
-      <view class="grid-item">
-        <image class="grid-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwPC8OhhM23EIYvMUet7Nf6uDxi2KqGNAA6k4CBkHyGOCNPZZwOlyC-Uau21TpQtEhPYdTcBcPUnXpCFbs1A7ir9xKevELak7Z3EESZxcd-z-28qJW6scOX169BIn7HomHKf_ccZp3RoSZe7asnGTXa0SnV0HWAeubIhHZeK0ty9mpfx5sfAJPJfvCl8IogO9vSAiMnUUfFNFNdxz3giWM0qVDYtLlwlOtac40e6EeZEzKzm_gpfehl-tnmHZe7EY52A0rrM_XTlM" mode="aspectFill"></image>
-        <view class="grid-overlay"></view>
-        <view class="grid-text">
-          <text class="grid-title text-base font-bold text-white">大漆珠</text>
-          <text class="grid-desc text-white">Lacquer Beads</text>
+          <text class="grid-title {{topCategories.length % 2 !== 0 && index === 0 ? 'text-2xl' : 'text-base'}} font-bold text-white">{{item.name}}</text>
+          <text class="grid-desc text-white">{{item.subtitle || 'Zen Aesthetics'}}</text>
         </view>
       </view>
     </view>
@@ -57,13 +42,30 @@
 
   <!-- Recommended Selection Section -->
   <view class="section recommended">
-    <view class="text-center mb-8 flex flex-col items-center">
+    <view class="text-center mb-6 flex flex-col items-center">
       <text class="text-2xl font-bold tracking-widest text-slate-800">古法匠心 · 南风草木</text>
       <text class="text-xs text-primary mt-2 uppercase tracking-widest">Zen Living Selection</text>
       <view class="divider mt-4"></view>
     </view>
+
+    <!-- 分类 Tab -->
+    <scroll-view scroll-x class="tabs-scroll mb-8" scroll-with-animation>
+      <view class="tab-item-wrap">
+        <view 
+          class="category-tab {{selectedCategoryId === 0 ? 'active' : ''}}" 
+          bindtap="selectCategory" data-id="{{0}}">
+          全部
+        </view>
+        <view 
+          class="category-tab {{selectedCategoryId === item.id ? 'active' : ''}}" 
+          wx:for="{{categories}}" wx:key="id" 
+          bindtap="selectCategory" data-id="{{item.id}}">
+          {{item.name}}
+        </view>
+      </view>
+    </scroll-view>
     
-    <view class="product-list">
+    <view class="product-list" wx:if="{{products && products.length > 0}}">
       <view class="product-item" wx:for="{{products}}" wx:key="id" bindtap="goToDetail" data-id="{{item.id}}">
         <view class="product-image-wrap">
           <image class="product-image" src="{{item.cover_image}}" mode="aspectFill"></image>
@@ -76,6 +78,23 @@
           </view>
           <text class="product-desc mb-4">{{item.subtitle || item.description || ''}}</text>
           <button class="btn-primary w-full">查看详情</button>
+        </view>
+      </view>
+    </view>
+    
+    <!-- ══ Unified Empty State ══ -->
+    <view class="empty-state-wrap pb-20" wx:else>
+      <view class="empty-card flex flex-col items-center justify-center">
+        <view class="empty-media-wrap mb-10 relative">
+          <image src="https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?auto=format&fit=crop&q=80&w=400&h=400" mode="aspectFill" class="empty-art-img rounded-full w-48 h-48 opacity-80 shadow-inner-zen"></image>
+          <view class="absolute inset-0 rounded-full border border-primary-10 animate-ripple"></view>
+        </view>
+        <view class="text-xl font-bold text-slate-800 mb-2 tracking-widest">雅物寻踪</view>
+        <view class="text-xs text-primary-40 tracking-[0.4em] uppercase mb-8">Zen Collection Curating</view>
+        <view class="w-12 h-px bg-primary opacity-20"></view>
+        <view class="text-mini text-slate-400 mt-8 italic px-12 text-center leading-relaxed">
+          <view>“好物如良友，相遇有时。”</view>
+          <view class="mt-1">此处暂无存货，不妨移步他处寻香。</view>
         </view>
       </view>
     </view>

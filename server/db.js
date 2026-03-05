@@ -19,11 +19,19 @@ db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS categories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+    subtitle TEXT,
+    image TEXT,
     icon TEXT,
     sort_order INTEGER DEFAULT 0,
     status INTEGER DEFAULT 1,
+    is_top INTEGER DEFAULT 0,
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
+
+  // Migration for existing tables
+  db.run("ALTER TABLE categories ADD COLUMN subtitle TEXT", (err) => { if (err) console.log('subtitle column exists'); });
+  db.run("ALTER TABLE categories ADD COLUMN image TEXT", (err) => { if (err) console.log('image column exists'); });
+  db.run("ALTER TABLE categories ADD COLUMN is_top INTEGER DEFAULT 0", (err) => { if (err) console.log('is_top column exists'); });
 
   db.run(`CREATE TABLE IF NOT EXISTS products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -97,6 +105,14 @@ db.serialize(() => {
     product_id INTEGER NOT NULL,
     quantity INTEGER DEFAULT 1,
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`);
+
+  db.run(`CREATE TABLE IF NOT EXISTS favorites (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    product_id INTEGER NOT NULL,
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, product_id)
   )`);
 
   // Init Data (Categories)

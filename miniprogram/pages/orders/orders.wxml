@@ -11,8 +11,14 @@
     </view>
   </view>
 
+  <!-- ══ 禅意加载器 ══ -->
+  <view class="zen-loader" wx:if="{{isLoading && filteredOrders.length === 0}}">
+    <view class="loader-dot"></view>
+    <view class="loader-text">雅物加载中...</view>
+  </view>
+
   <!-- 空状态 -->
-  <view class="empty" wx:if="{{filteredOrders.length === 0}}">
+  <view class="empty" wx:if="{{!isLoading && filteredOrders.length === 0}}">
     <image src="https://img.icons8.com/ios/80/b42222/receive-cash.png" class="empty-icon"></image>
     <view class="empty-text">暂无相关订单</view>
     <view class="empty-sub">去首页看看有没有心动的香品</view>

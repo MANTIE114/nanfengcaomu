@@ -15,38 +15,88 @@ Page({
         tabs: TABS,
         activeTab: -1,
         allOrders: [],
-        filteredOrders: []
+        filteredOrders: [],
+        page: 1,
+        pageSize: 5,
+        hasMore: true,
+        isLoading: true
     },
 
     onLoad(options) {
         // 支持从 profile 页按 status 跳入，如 ?status=0
         const status = options.status !== undefined ? parseInt(options.status) : -1;
         this.setData({ activeTab: status });
+        this.fetchOrders(true);
     },
 
     onShow() {
-        this.fetchOrders();
+        // Only fetch at startup if it's the first time
     },
 
-    fetchOrders() {
-        wx.showLoading({ title: '加载中...' });
-        api.getOrders().then(orders => {
-            wx.hideLoading();
+    onPullDownRefresh() {
+        this.fetchOrders(true).then(() => {
+            wx.stopPullDownRefresh();
+        });
+    },
+
+    onReachBottom() {
+        if (this.data.hasMore && !this.data.isLoading) {
+            this.fetchOrders(false);
+        }
+    },
+
+    fetchOrders(isRefresh = true) {
+        if (isRefresh) {
+            this.setData({ page: 1, hasMore: true, allOrders: [], filteredOrders: [], isLoading: true });
+        } else {
+            this.setData({ isLoading: true });
+        }
+
+        const { page, pageSize } = this.data;
+
+        return api.getOrders({ page, pageSize }).then(orders => {
             const enriched = this.enrichOrders(orders || []);
-            this.setData({ allOrders: enriched });
-            this.applyFilter();
+
+            if (isRefresh) {
+                this.setData({
+                    allOrders: enriched,
+                    filteredOrders: this.getFilteredOrders(enriched, this.data.activeTab),
+                    page: 2,
+                    hasMore: enriched.length === pageSize,
+                    isLoading: false
+                });
+            } else {
+                // Append using index path to avoid huge payload on one setData
+                const prevCount = this.data.allOrders.length;
+                const newData = {};
+                enriched.forEach((item, index) => {
+                    newData[`allOrders[${prevCount + index}]`] = item;
+                });
+
+                const nextAllOrders = [...this.data.allOrders, ...enriched];
+                newData.filteredOrders = this.getFilteredOrders(nextAllOrders, this.data.activeTab);
+                newData.page = page + 1;
+                newData.hasMore = enriched.length === pageSize;
+                newData.isLoading = false;
+
+                this.setData(newData);
+            }
         }).catch(err => {
-            wx.hideLoading();
+            this.setData({ isLoading: false });
             console.error(err);
         });
     },
+
+
 
     enrichOrders(orders) {
         return orders.map(order => {
             // 格式化时间
             let timeStr = '';
             try {
-                const d = new Date(order.create_time + 'Z');
+                // ISO format: yyyy-MM-ddTHH:mm:ssZ
+                const isoTime = (order.create_time || '').replace(' ', 'T') + 'Z';
+                const d = new Date(isoTime);
                 const utc8 = new Date(d.getTime() + 8 * 60 * 60 * 1000);
                 timeStr = utc8.toISOString().replace('T', ' ').substring(0, 16);
             } catch (e) { timeStr = order.create_time || ''; }
@@ -57,7 +107,6 @@ Page({
             if (imgUrl) {
                 // If it's a relative path like /assets/..., prepend the server domain
                 if (imgUrl.startsWith('/') && !imgUrl.startsWith('data:')) {
-                    // Get API_BASE domain part (e.g., http://192.168.3.8:3000)
                     const domain = api.API_BASE.replace('/api', '');
                     imgUrl = domain + imgUrl;
                 }
@@ -65,14 +114,18 @@ Page({
             }
 
             if (preview.length === 0) {
-                // High quality placeholder icon
                 preview = [{ cover_image: 'https://img.icons8.com/ios/100/b42222/image.png' }];
             }
 
+            // PERFORMANCE OPTIMIZATION: Only return fields used in WXML
+            // This prevents huge base64 strings from being sent multiple times or as unused fields
             return {
-                ...order,
+                id: order.id,
+                order_no: order.order_no,
+                status: order.status,
+                total_amount: order.total_amount,
                 create_time: timeStr,
-                previewItems: preview,
+                previewItems: preview, // The only place where imgUrl stays
                 itemCount: order.total_quantity || 1,
                 firstName: order.first_product_name || '手工雅香',
                 firstSpec: order.first_product_spec || '古法手作'
@@ -80,28 +133,32 @@ Page({
         });
     },
 
-    applyFilter() {
-        const { allOrders, activeTab } = this.data;
-        let filtered;
-        if (activeTab === -1) {
-            filtered = allOrders;
-        } else if (activeTab === 4) {
-            // Include both 4 (Refunding) and 5 (Refunded) under After-sales tab
-            filtered = allOrders.filter(o => o.status === 4 || o.status === 5);
-        } else {
-            filtered = allOrders.filter(o => o.status === activeTab);
+    getFilteredOrders(orders, tab) {
+        if (tab === -1) return orders;
+        if (tab === 4) {
+            return orders.filter(o => o.status === 4 || o.status === 5);
         }
+        return orders.filter(o => o.status === tab);
+    },
+
+    applyFilter() {
+        const filtered = this.getFilteredOrders(this.data.allOrders, this.data.activeTab);
         this.setData({ filteredOrders: filtered });
     },
 
     switchTab(e) {
         const status = e.currentTarget.dataset.status;
+        if (this.data.activeTab === status) return;
+
         this.setData({
             activeTab: status,
-            scrollTop: 0 // Reset scroll position
+            isLoading: true, // Ensure loading starts immediately
+            filteredOrders: [], // Clear view immediately to show loader
+            scrollTop: 0
         });
+
         // Refresh data on tab switch
-        this.fetchOrders();
+        this.fetchOrders(true);
     },
 
     goToDetail(e) {

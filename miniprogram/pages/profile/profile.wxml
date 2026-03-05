@@ -4,35 +4,41 @@
     <view class="absolute top-0 right-0 w-32 h-32 bg-primary-5 rounded-full -mr-16 -mt-16 blur-xl"></view>
     <view class="absolute top-20 left-0 w-24 h-24 bg-primary-10 rounded-full -ml-12 blur-xl"></view>
     
-    <view class="relative flex-col items-center flex">
-      <view class="avatar-wrap mb-4 border-2 border-primary-20 p-1 rounded-full w-24 h-24">
-        <image class="avatar rounded-full w-full h-full" src="{{userInfo.avatar || 'https://lh3.googleusercontent.com/aida-public/AB6AXuBcL8vgwMXa0mmKlwnanxzZYyaGhuPIdOsavdFxyIXAiLHo_RmpsFXJO3Xh9PtkYnb7YYhV3T9SGe4JjV9zIZt5E0aYUJe4_25NzeP03_Xhk1rfHGdT59wICyWeMRSZ_xl_ahVPXqyFVL0MLdSzLCg_qlYeDY3Lg1QYxvbNW_vhcO_S7s7hOB3BMe1oYrb0Jgzym1eUiwbqvX9A-cxpwZeekAwTFUrNzT65-7GzTdr5Y9CySGA8BcWs8P1D_-ZcaNMjj6jcvg8WwWA'}}" mode="aspectFill"></image>
+    <view class="relative flex flex-col items-center">
+      <view class="avatar-wrap mb-4 border-2 border-primary-20 p-1 rounded-full w-24 h-24 relative active-opacity" bindtap="editAvatar">
+        <image class="avatar rounded-full w-full h-full" src="{{userInfo.avatar || 'https://images.unsplash.com/photo-1599305090598-fe179d501227?auto=format&fit=crop&q=80&w=300&h=300'}}" mode="aspectFill"></image>
+        <view class="absolute bottom-0 right-0 bg-primary rounded-full p-1 border-2 border-white shadow-sm flex items-center justify-center">
+          <image src="https://img.icons8.com/ios-filled/50/ffffff/camera.png" class="w-3 h-3"></image>
+        </view>
       </view>
       
-      <view class="text-xl font-bold text-slate-900 mb-1">{{userInfo.nickname || '南风访客'}}</view>
+      <view class="flex items-center active-opacity" bindtap="editNickname">
+        <view class="text-xl font-bold text-slate-900 mb-1">{{userInfo.nickname || '南风访客'}}</view>
+        <image src="https://img.icons8.com/ios-glyphs/30/94a3b8/edit.png" class="w-3 h-3 ml-2 mb-1"></image>
+      </view>
       <view class="text-sm text-slate-500 italic">“静心采撷，草木芬芳”</view>
-      
-      <view class="stats flex gap-8 mt-6">
-        <view class="text-center">
-          <view class="text-lg font-bold text-slate-900">{{stats.collects}}</view>
-          <view class="text-[20rpx] text-slate-500 mt-1 uppercase tracking-widest">收藏</view>
-        </view>
-        <view class="divider"></view>
-        <view class="text-center">
-          <view class="text-lg font-bold text-slate-900">{{stats.footprints}}</view>
-          <view class="text-[20rpx] text-slate-500 mt-1 uppercase tracking-widest">足迹</view>
-        </view>
-        <view class="divider"></view>
-        <view class="text-center">
-          <view class="text-lg font-bold text-slate-900">{{userInfo.points || 0}}</view>
-          <view class="text-[20rpx] text-slate-500 mt-1 uppercase tracking-widest">积分</view>
-        </view>
-      </view>
     </view>
   </view>
 
   <!-- Main Content -->
-  <view class="px-4 mt-6 space-y-6">
+  <view class="px-4 mt-6">
+    <!-- Collections / Treasures - New Design -->
+    <view class="collection-row bg-white rounded-xl p-6 shadow-sm mb-6 flex items-center justify-between" bindtap="goToCollections">
+      <view class="flex items-center">
+        <view class="w-10 h-10 bg-primary-10 rounded-lg flex items-center justify-center mr-4">
+          <image src="https://img.icons8.com/ios/50/b42222/like--v1.png" style="width: 44rpx; height: 44rpx; display: block;"></image>
+        </view>
+        <view class="flex flex-col justify-center">
+          <view class="text-base font-bold text-slate-800 line-none mb-1">我的珍藏</view>
+          <view class="text-mini text-slate-400 tracking-wider line-none">REFINED COLLECTION</view>
+        </view>
+      </view>
+      <view class="flex items-center">
+        <view class="text-lg font-bold text-primary mr-3 line-none">{{stats.collects || 0}}</view>
+        <view class="text-slate-300 text-lg line-none">›</view>
+      </view>
+    </view>
+    
     <!-- Orders Section -->
     <view class="bg-white rounded-xl p-4 shadow-sm mb-6">
       <view class="flex justify-between items-center mb-6 pb-4 border-b border-primary-5" bindtap="goToOrders">
@@ -70,25 +76,21 @@
 
     <!-- Menu Section -->
     <view class="bg-white rounded-xl overflow-hidden shadow-sm">
-      <view class="flex items-center justify-between p-4 border-b border-slate-50">
-        <view class="text-sm font-medium text-slate-700">我的收藏</view>
-        <view class="text-slate-300">></view>
-      </view>
       <view class="flex items-center justify-between p-4 border-b border-slate-50" bindtap="goToAddress">
         <view class="text-sm font-medium text-slate-700">收货地址</view>
         <view class="text-slate-300">></view>
       </view>
-      <view class="flex items-center justify-between p-4 border-b border-slate-50">
+      <button open-type="contact" class="flex items-center justify-between p-4 border-b border-slate-50 relative contact-btn">
         <view class="text-sm font-medium text-slate-700">在线客服</view>
         <view class="text-slate-300">></view>
-      </view>
-      <view class="flex items-center justify-between p-4">
+      </button>
+      <view class="flex items-center justify-between p-4" bindtap="goToAbout">
         <view class="text-sm font-medium text-slate-700">关于我们</view>
         <view class="text-slate-300">></view>
       </view>
     </view>
     
-    <view class="py-8 text-center text-slate-300 text-[20rpx] tracking-widest mt-4">
+    <view class="py-8 text-center text-slate-300 text-mini tracking-widest mt-4">
       Nan Feng Cao Mu · Modern Zen Lifestyle
     </view>
   </view>
